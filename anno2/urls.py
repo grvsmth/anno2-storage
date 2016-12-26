@@ -16,6 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from . import views
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^annotation', views.annotation, name='annotation'),
+    url(r'', views.root, name='root')
 ]

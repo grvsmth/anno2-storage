@@ -132,3 +132,10 @@ MEDIA_ROOT = u'/home/grvsmth/anno2/media'
 MEDIA_URL = '/media/'
 STATIC_ROOT = u'/home/grvsmth/anno2/static'
 STATIC_URL = '/static/'
+
+# Information specific to this Annotator Store API
+
+ANNOTATOR_API = {
+  "name": "Annotator Store API",
+  "version": "2.0.0"
+}
