@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 class Tag (models.Model):
@@ -7,8 +8,8 @@ class Tag (models.Model):
 class Range (models.Model):
     start = models.CharField(max_length=200)
     end = models.CharField(max_length=200)
-    startOffset = models.IntegerField(default=0)
-    endOffset = models.IntegerField(default=0)
+    start_offset = models.IntegerField(default=0)
+    end_offset = models.IntegerField(default=0)
 
 class Permission(models.Model):
     READ = 'read'
@@ -27,3 +28,16 @@ class Permission(models.Model):
         choices=ACTION_CHOICES,
         default=READ
         )
+
+class Annotation (models.Model):
+    annotator_schema_version = models.CharField(max_length=10)
+    created = models.DateTimeField(default=timezone.now)
+    updated = models.DateTimeField(default=timezone.now)
+    text = models.TextField()
+    quote = models.TextField()
+    uri = models.CharField(max_length=3000)
+    ranges = models.ManyToManyField(Range)
+    user = models.ForeignKey(User)
+    consumer = models.CharField(max_length=100)
+    tags = models.ManyToManyField(Tag)
+    permissions = models.ManyToManyField(Permission)
