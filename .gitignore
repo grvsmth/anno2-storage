@@ -52,6 +52,8 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
+static/admin/
+migrations/
 
 # Flask stuff:
 instance/
@@ -87,8 +89,5 @@ ENV/
 
 # Rope project settings
 .ropeproject
-
-# Django migrations
-migrations/
 
 .pyc
