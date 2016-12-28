@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'anno2'
 ]
 
@@ -132,6 +133,18 @@ MEDIA_ROOT = u'/home/grvsmth/anno2/media'
 MEDIA_URL = '/media/'
 STATIC_ROOT = u'/home/grvsmth/anno2/static'
 STATIC_URL = '/static/'
+
+# Django REST Framework
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.IsAdminUser'
+    ],
+    'PAGE_SIZE': 10
+}
 
 # Information specific to this Annotator Store API
 
