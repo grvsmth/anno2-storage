@@ -26,7 +26,7 @@ router.register(r'annotations', views.AnnotationViewSet, 'Annotation')
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # url(r'^annotation', views.annotation, name='annotation'),
-    url(r'^', include(router.urls)),
+    url(r'^store', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'', views.root, name='root')
 ]
