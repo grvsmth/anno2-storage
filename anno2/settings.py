@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['grvsmth.pythonanywhere.com']
 
+APPEND_SLASH = False
 
 # Application definition
 

@@ -19,14 +19,13 @@ from rest_framework import routers
 
 from . import views
 
-router = routers.DefaultRouter()
+router = routers.SimpleRouter(trailing_slash=False)
 router.register(r'users', views.UserViewSet)
 router.register(r'annotations', views.AnnotationViewSet, 'Annotation')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    # url(r'^annotation', views.annotation, name='annotation'),
-    url(r'^store', include(router.urls)),
+    url(r'^store/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'', views.root, name='root')
+    # url(r'', views.root, name='root')
 ]

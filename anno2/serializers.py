@@ -1,23 +1,32 @@
+import logging
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Annotation
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+LOG = logging.getLogger(__name__)
+
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email')
+        fields = ('id', 'url', 'username', 'email')
 
-class AnnotationSerializer(serializers.HyperlinkedModelSerializer):
+class AnnotationSerializer(serializers.ModelSerializer):
+
+    id = serializers.ReadOnlyField(label='ID')
+    user = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field='username'
+        )
+    def create(self, validated_data):
+        LOG.error(validated_data)
+        """
+        user_data = validated_data.pop('user')
+        LOG.error(user_data)
+        django_user = User.objects.get(username=user_data)
+        validated_data['django_user'] = django_user
+        LOG.error(validated_data)
+        """
+        return validated_data
     class Meta:
         model = Annotation
-        fields = (
-            'annotator_schema_version',
-            'text',
-            'quote',
-            'uri',
-            'ranges',
-            'user',
-            'consumer',
-            'tags',
-            'permissions'
-            )
+        fields = (['id', 'text', 'quote', 'uri', 'user'])
