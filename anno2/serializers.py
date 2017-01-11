@@ -1,7 +1,7 @@
 import logging
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Annotation
+from .models import Annotation, Range
 
 LOG = logging.getLogger(__name__)
 
@@ -10,23 +10,25 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'url', 'username', 'email')
 
+class RangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Range
+        fields = ('start', 'end', 'start_offset', 'end_offset')
+
 class AnnotationSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(label='ID')
-    user = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field='username'
-        )
+    ranges = RangeSerializer(many=True)
+
     def create(self, validated_data):
         LOG.error(validated_data)
-        """
-        user_data = validated_data.pop('user')
-        LOG.error(user_data)
-        django_user = User.objects.get(username=user_data)
-        validated_data['django_user'] = django_user
-        LOG.error(validated_data)
-        """
-        return validated_data
+
+        range_data = validated_data.pop('ranges')
+        annotation = Annotation.objects.create(django_user=self.context['request'].user, **validated_data)
+        for range_datum in range_data:
+            Range.objects.create(annotation=annotation, **range_datum)
+
+        return annotation
     class Meta:
         model = Annotation
-        fields = (['id', 'text', 'quote', 'uri', 'user'])
+        fields = ('id', 'text', 'quote', 'uri', 'ranges')

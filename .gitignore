@@ -54,6 +54,7 @@ coverage.xml
 local_settings.py
 static/admin/
 migrations/
+rest_framework/
 
 # Flask stuff:
 instance/
