@@ -13,12 +13,16 @@ class UserSerializer(serializers.ModelSerializer):
 class RangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Range
-        fields = ('start', 'end', 'start_offset', 'end_offset')
+        fields = ('start', 'end', 'startOffset', 'endOffset')
 
 class AnnotationSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(label='ID')
     ranges = RangeSerializer(many=True)
+
+    def to_internal_data(self, data):
+        LOG.error(data)
+        return data
 
     def create(self, validated_data):
         LOG.error(validated_data)

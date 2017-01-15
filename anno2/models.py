@@ -38,8 +38,8 @@ class Annotation (models.Model):
 class Range (models.Model):
     start = models.CharField(max_length=200)
     end = models.CharField(max_length=200)
-    start_offset = models.IntegerField(default=0)
-    end_offset = models.IntegerField(default=0)
+    startOffset = models.IntegerField(default=0)
+    endOffset = models.IntegerField(default=0)
     annotation = models.ForeignKey(
         Annotation,
         related_name='ranges',

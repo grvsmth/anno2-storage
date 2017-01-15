@@ -150,7 +150,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 100
+
 }
 
 # Information specific to this Annotator Store API

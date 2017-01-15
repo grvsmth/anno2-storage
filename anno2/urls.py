@@ -21,7 +21,8 @@ from . import views
 
 router = routers.SimpleRouter(trailing_slash=False)
 router.register(r'users', views.UserViewSet)
-router.register(r'annotations|search', views.AnnotationViewSet, 'Annotation')
+router.register(r'annotations', views.AnnotationViewSet, 'Annotation')
+router.register(r'search', views.SearchViewSet, 'Search')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

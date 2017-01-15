@@ -92,3 +92,7 @@ ENV/
 .ropeproject
 
 .pyc
+
+# annotatorjs
+annotator-full.min.js
+annotator.min.css
