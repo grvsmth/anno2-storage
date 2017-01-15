@@ -1,7 +1,6 @@
 import logging
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.renderers import JSONRenderer
 from .models import Annotation, Range, Tag
 
 LOG = logging.getLogger(__name__)
@@ -21,21 +20,21 @@ class RangeSerializer(serializers.ModelSerializer):
         model = Range
         fields = ('start', 'end', 'startOffset', 'endOffset')
 
+class ReplaceMe():
+    def to_internal_value(self, data):
+        LOG.error(data)
+        tag_data = data.get('tags', [])
+        tag_dicts = []
+        for tag_datum in tag_data:
+            tag_dicts.append({'tag_text': tag_datum})
+        data['tags'] = tag_dicts
+        return data
+
 class AnnotationSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(label='ID')
     ranges = RangeSerializer(many=True)
     tags = TagSerializer(many=True)
-
-    def to_internal_value(self, data):
-        LOG.error(data)
-        tag_data = data.get('tags', [])
-        new_tags = []
-        for tag_datum in tag_data:
-            new_tags.append({'tag_text': tag_datum})
-        data['tags'] = new_tags
-        LOG.error(new_tags)
-        return data
 
     def create(self, validated_data):
         LOG.debug(validated_data)
@@ -45,11 +44,11 @@ class AnnotationSerializer(serializers.ModelSerializer):
         annotation = Annotation.objects.create(django_user=self.context['request'].user, **validated_data)
         for range_datum in range_data:
             Range.objects.create(annotation=annotation, **range_datum)
-        new_tags = []
+        tag_objs = []
         for tag_datum in tag_data:
             tag, created = Tag.objects.get_or_create(tag_text=tag_datum['tag_text'])
-            new_tags.append(tag)
-        annotation.tags = new_tags
+            tag_objs.append(tag)
+        annotation.tags = tag_objs
         annotation.save()
 
         return annotation
@@ -73,6 +72,9 @@ class AnnotationSerializer(serializers.ModelSerializer):
         instance.tags = new_tags
         instance.save()
         return instance
+
+    def get_tags(self, annotation):
+        return annotation.tags.values_list('tag_text', flat=True)
 
     class Meta:
         model = Annotation

@@ -36,7 +36,6 @@ class SearchViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Annotation.objects.all()
         # TODO repeat for all possible queries?
-        # TODO definitely url
         text = self.request.query_params.get('text', None)
         if text is not None:
             queryset = queryset.filter(text=text)
