@@ -57,7 +57,7 @@ $.ajaxSetup({
 
 jQuery(function ($) {
     var content = $('#testContent').annotator();
-    content.annotator('addPlugin', 'Store', {
+    content.annotator('addPlugin', 'Tags').annotator('addPlugin', 'Store', {
         prefix: '/store',
         annotationData: {
             'uri': 'http://grvsmth.pythonanywhere.com/static/test.html'

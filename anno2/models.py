@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 class Tag (models.Model):
-    tag_text = models.CharField(max_length=200, primary_key=True)
+    text = models.CharField(max_length=200, primary_key=True)
 
 class Permission(models.Model):
     READ = 'read'
