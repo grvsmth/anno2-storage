@@ -43,6 +43,9 @@ class SearchViewSet(viewsets.ModelViewSet):
         quote = self.request.query_params.get('quote', None)
         if quote is not None:
             queryset = queryset.filter(quote=quote)
+        uri = self.request.query_params.get('uri', None)
+        if uri is not None:
+            queryset = queryset.filter(uri=uri)
         return queryset
 
 class AnnotationViewSet(viewsets.ModelViewSet):
