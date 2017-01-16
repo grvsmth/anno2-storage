@@ -1,9 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-
-class Tag (models.Model):
-    text = models.CharField(max_length=200, primary_key=True)
+from taggit.managers import TaggableManager
 
 class Permission(models.Model):
     READ = 'read'
@@ -30,9 +28,9 @@ class Annotation (models.Model):
     text = models.TextField(db_index=True)
     quote = models.TextField(blank=True, null=True)
     uri = models.CharField(max_length=3000, null=True)
+    tags = TaggableManager()
     django_user = models.ForeignKey(User, db_index=True)
     consumer = models.CharField(max_length=100, default='Annotator')
-    tags = models.ManyToManyField(Tag, blank=True)
     permissions = models.ManyToManyField(Permission)
 
 class Range (models.Model):
