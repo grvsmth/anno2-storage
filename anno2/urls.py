@@ -26,6 +26,7 @@ router.register(r'search', views.SearchViewSet, 'Search')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^auth/token$', views.token, name='token'),
     url(r'^store/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # url(r'', views.root, name='root')

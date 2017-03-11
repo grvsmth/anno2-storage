@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="css/annotator.min.css">
     <meta charset="utf-8" />
 </head>
-<bodY>
+<body>
 <h1>This is a test</h1>
 <div id="testContent">
     <p class="char1">Eh ! Oui, vraiment. Aujourd'hui, à cinq heures du
@@ -19,7 +19,7 @@ sachiez, c'est aujourd'hui la toussaint.</p>
 
 </div>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="js/annotator-full.min.js"></script>
+<script src="js/annotator.min.js"></script>
 <script>
 /*
 var app = new annotator.App();
@@ -67,7 +67,7 @@ jQuery(function ($) {
             'limit': 20,
             'uri': 'http://grvsmth.pythonanywhere.com/static/test.html'
         }
-    }).annotator('addPlugin', 'Auth', { tokenUrl: '/auth/token' });
+    });
 });
 </script>
 </bodY>

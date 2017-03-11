@@ -156,6 +156,8 @@ REST_FRAMEWORK = {
 
 }
 
+TAGGIT_CASE_INSENSITIVE = True
+
 # Information specific to this Annotator Store API
 
 ANNOTATOR_API = {
