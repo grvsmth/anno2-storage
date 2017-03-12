@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootflat/css/site.min.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}mimic.css" />
+<script type="text/javascript" src="{{ STATIC_URL }}bootflat/js/site.min.js"></script>
+{% if jquery %}
+<script type="text/javascript" src="{{ STATIC_URL }}{{ jquery }}"></script>
+{% endif %}
+<title>Language Lab Mimic</title>
+</head>
+<body>
+<div class="docs-header">
+  <nav class="navbar navbar-default navbar-custom" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+	  <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Language Lab Mimic</a>
+      </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav navbar-right">
+	{% if user.is_staff %}
+	<li><a class="nav-link{{ listLanguagesCurrent }}" href="{% url 'listlanguages' %}">List languages</a></li>
+	{% endif %}
+	{% if user.is_authenticated %}
+        <li class="dropdown">
+	  <a class="dropdown-toggle nav-link{{ browseCurrent }}" data-toggle="dropdown" href="#">
+	    Browse <b class="carat"></b>
+	  </a>
+	  <ul class="dropdown-menu" role="menu">
+            <li><a href="{% url 'browsemedia' %}">Browse media</a></li>
+            <li><a href="{% url 'browseex' %}">Browse exercises</a></li>
+            <li><a href="{% url 'browselesson' %}">Browse lessons</a></li>
+	  </ul>
+	</li>
+        <li class="dropdown">
+	  <a class="dropdown-toggle nav-link{{ addCurrent }}" data-toggle="dropdown" href="#">
+	    Add <b class="carat"></b>
+	  </a>
+	  <ul class="dropdown-menu" role="menu">
+            <li><a href="{% url 'addmedia' %}">Add media</a></li>
+	    <li><a href="{% url 'addexercise' %}">Add exercise</a></li>
+	    <li><a href="{% url 'addlesson' %}">Add lesson</a></li>
+	  </ul>
+	</li>
+	<li><a class="nav-link{{ queueCurrent }}" href="{% url 'browseq' %}">My Queue</a></li>
+	<li><a class="nav-link{{ profileCurrent }}" href="{% url 'profile' %}">Creator Profile</a></li>
+	<li><a class="nav-link{{ logoutCurrent }}" href="{% url 'auth_logout' %}">Logout</a></li>
+	{% else %}
+	<li><a class="nav-link{{ loginCurrent }}" href="{% url 'auth_login' %}">Login</a></li>
+	<li>
+          <a class="nav-link{{ registerCurrent }}" href="{% url 'registration_register' %}">Register</a>
+        </li>
+	{% endif %}
+	<li><a class="nav-link{{ aboutCurrent }}" href="/">About</a></li>
+	</ul>
+    <p class="navbar-text navbar-right">{{ SigninMessage }}</p>
+    </div>
+  </div>
+  </nav>
+</div>

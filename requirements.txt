@@ -3,7 +3,7 @@ annotator==0.14.2
 click==6.6
 Django==1.10.4
 django-filter==1.0.1
-django-registration==2.2
+django-registration-redux==1.4
 django-taggit==0.21.3
 django-taggit-serializer==0.1.5
 djangorestframework==3.5.3

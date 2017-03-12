@@ -33,6 +33,7 @@ APPEND_SLASH = False
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'registration',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'anno2.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['/home/grvsmth/anno2/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -157,6 +158,8 @@ REST_FRAMEWORK = {
 }
 
 TAGGIT_CASE_INSENSITIVE = True
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_AUTO_LOGIN = True # Automatically log the user in.
 
 # Information specific to this Annotator Store API
 
