@@ -25,6 +25,7 @@ router.register(r'annotations', views.AnnotationViewSet, 'Annotation')
 router.register(r'search', views.SearchViewSet, 'Search')
 
 urlpatterns = [
+    url(r'^accounts/', include('registration.backends.hmac.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^auth/token$', views.token, name='token'),
     url(r'^store/', include(router.urls)),
