@@ -5,11 +5,13 @@ Views (JSON objects) for Annotator storage backend
 import datetime
 import jwt
 import logging
+import os
 from collections import OrderedDict
 import django_filters.rest_framework
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
@@ -20,8 +22,8 @@ from .serializers import UserSerializer, AnnotationSerializer
 
 LOG = logging.getLogger(__name__)
 
-CONSUMER_KEY = 'E8dLO9MmUhIu8ZVb1WSWZfp02iZVre'
-CONSUMER_SECRET = 'TuckySaves'
+CONSUMER_KEY = os.environ.get('CONSUMER_KEY')
+CONSUMER_SECRET = os.environ.get('CONSUMER_SECRET')
 CONSUMER_TTL = 86400
 
 def generate_token(user_id):
@@ -46,6 +48,9 @@ def root(request):
 @login_required
 def token(request):
     return(HttpResponse(generate_token(request.user.username)))
+
+def jsfile(request):
+    return render(request, 'anno2.js', {'url': os.environ.get('DJANGO_HOST')})
 
 class LimitOffsetTotalRowsPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):

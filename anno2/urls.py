@@ -33,5 +33,6 @@ urlpatterns = [
         r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')
         ),
+    url(r'^anno2.js$', views.jsfile, name='jsfile'),
     # url(r'', views.root, name='root')
 ]
