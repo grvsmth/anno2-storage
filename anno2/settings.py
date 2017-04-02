@@ -170,7 +170,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 ANNOTATOR_API = {
   "name": "Annotator Store API",
-  "version": "2.0.0",
+  "version": "0.1.0"
 }
 
 CORS_ORIGIN_WHITELIST = (os.environ.get('CSRF_TRUSTED_ORIGIN'), )
