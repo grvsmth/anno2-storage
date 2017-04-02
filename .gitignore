@@ -93,6 +93,7 @@ ENV/
 
 .pyc
 
-# annotatorjs
+# JS and CSS libraries
 annotator-full.min.js
 annotator.min.css
+jquery*.js

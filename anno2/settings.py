@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 't)7d7pw^-hqav5k0j3z7or4d^=x4o(m+s5_9kwgshi=-xuchc$'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['grvsmth.pythonanywhere.com']
+ALLOWED_HOSTS = [os.environ.get('DJANGO_HOST')]
 
 APPEND_SLASH = False
 
@@ -33,6 +33,8 @@ APPEND_SLASH = False
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'registration',
+    'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -40,13 +42,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
-    'anno2'
+    'taggit',
+    'taggit_serializer',
+    'anno2',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -58,7 +63,7 @@ ROOT_URLCONF = 'anno2.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,14 +85,14 @@ WSGI_APPLICATION = 'anno2.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'grvsmth$default',
-        'USER': 'grvsmth',
-        'PASSWORD': 'myAnnotate',
-        'HOST': 'grvsmth.mysql.pythonanywhere-services.com'
+        'NAME': os.environ.get('DJANGO_DB'),
+        'USER': os.environ.get('DJANGO_DB_USER'),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
+        'HOST': os.environ.get('DJANGO_DB_HOST')
     },
     'OPTIONS': {
         'sql_mode':'STRICT_TRANS_TABLES'
-        }
+        },
 }
 
 
@@ -129,14 +134,16 @@ USE_TZ = True
 
 # default static files settings for PythonAnywhere.
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
-MEDIA_ROOT = u'/home/grvsmth/anno2/media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-STATIC_ROOT = u'/home/grvsmth/anno2/static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+SECURE_SSL_REDIRECT = True
 
 # Django REST Framework
 
@@ -150,9 +157,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
 
 }
+
+TAGGIT_CASE_INSENSITIVE = True
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_AUTO_LOGIN = True # Automatically log the user in.
+CORS_ALLOW_CREDENTIALS = True
 
 # Information specific to this Annotator Store API
 
@@ -160,3 +172,8 @@ ANNOTATOR_API = {
   "name": "Annotator Store API",
   "version": "0.1.0"
 }
+
+CORS_ORIGIN_WHITELIST = (os.environ.get('CSRF_TRUSTED_ORIGIN'), )
+CSRF_TRUSTED_ORIGINS = (
+    os.environ.get('CSRF_TRUSTED_ORIGIN'),
+)
