@@ -25,8 +25,14 @@ router.register(r'annotations', views.AnnotationViewSet, 'Annotation')
 router.register(r'search', views.SearchViewSet, 'Search')
 
 urlpatterns = [
+    url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^auth/token$', views.token, name='token'),
     url(r'^store/', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(
+        r'^api-auth/',
+        include('rest_framework.urls', namespace='rest_framework')
+        ),
+    url(r'^anno2.js$', views.jsfile, name='jsfile'),
     # url(r'', views.root, name='root')
 ]
