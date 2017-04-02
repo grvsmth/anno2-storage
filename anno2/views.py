@@ -39,13 +39,13 @@ def _now():
 def profile(request):
     return HttpResponse('foo')
 
+@login_required
 def root(request):
     return JsonResponse(settings.ANNOTATOR_API)
 
 @login_required
 def token(request):
-    LOG.error(request.user)
-    return(HttpResponse(generate_token(request.user.id)))
+    return(HttpResponse(generate_token(request.user.username)))
 
 class LimitOffsetTotalRowsPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):
