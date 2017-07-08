@@ -37,7 +37,6 @@ launch = function (inDiv, origUrl) {
             'uri': origUrl
         },
         loadFromSearch: {
-            'limit': 20,
             'uri': origUrl
         }
     });

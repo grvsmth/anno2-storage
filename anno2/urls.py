@@ -27,12 +27,15 @@ router.register(r'search', views.SearchViewSet, 'Search')
 urlpatterns = [
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^stage', views.repanix, name='repanix'),
     url(r'^auth/token$', views.token, name='token'),
     url(r'^store/', include(router.urls)),
+    url(r'^profile/', views.profile, name='profile'),
+    url(r'^save/', views.save_anno, name='save'),
     url(
         r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')
         ),
     url(r'^anno2.js$', views.jsfile, name='jsfile'),
-    # url(r'', views.root, name='root')
+    url(r'', views.root, name='root')
 ]

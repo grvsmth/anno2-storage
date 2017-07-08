@@ -25,7 +25,7 @@ class Annotation (models.Model):
     annotator_schema_version = models.CharField(max_length=10, default='2.0.0')
     created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(default=timezone.now)
-    text = models.TextField(db_index=True)
+    text = models.TextField(db_index=True, null=True)
     quote = models.TextField(blank=True, null=True)
     uri = models.CharField(max_length=3000, null=True)
     tags = TaggableManager()
