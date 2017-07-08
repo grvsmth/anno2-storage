@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/gscorpus.css">
+    <link rel="stylesheet" href="/static/css/annotator.min.css">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+</head><body>
+{{ body|safe }}
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/annotator-full.min.js"></script>
+<script src="/anno2.js"></script>
+<script>
+serverUri = "https://{{ serverUri }}";
+launch('.Content', "{{ url }}");
+</script>
+</body>
+</html>

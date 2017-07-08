@@ -21,7 +21,7 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-launch = function (inDiv) {
+launch = function (inDiv, origUrl) {
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -34,12 +34,11 @@ launch = function (inDiv) {
     content.annotator('addPlugin', 'Tags').annotator('addPlugin', 'Store', {
         prefix: serverUri + '/store',
         annotationData: {
-            'uri': window.location.href
+            'uri': origUrl
         },
         loadFromSearch: {
             'limit': 20,
-            'uri': window.location.href
+            'uri': origUrl
         }
     });
-    // content.annotator('addPlugin', 'Auth', { tokenUrl: serverUri + '/auth/token' });
 };
