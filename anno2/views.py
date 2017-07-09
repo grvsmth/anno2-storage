@@ -67,7 +67,9 @@ def save_anno(request):
     """
     Save annotations to file in 'output' directory
     """
-    uri = request.GET['uri']
+    uri = request.POST.get('uri')
+    if not uri:
+        return HttpResponse('')
     uripath = urlparse(uri).path
     basename = os.path.basename(uripath)
     filename = os.path.splitext(basename)[0] + '.json'
@@ -88,7 +90,7 @@ def token(request):
     return(HttpResponse(generate_token(request.user.username)))
 
 def repanix(request):
-    pageUrl = request.GET.get('url')
+    pageUrl = request.GET.get('uri')
     LOG.error(pageUrl)
     urlOk = False
     for urlRe in ACCEPTABLE_URLS:
