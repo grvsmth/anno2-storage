@@ -39,6 +39,8 @@ ACCEPTABLE_URLS = [
     re.compile(r'^https://grvsmth.pythonanywhere.com/static/')
     ]
 
+CONTENT_CLASSES = ['Content', 'content', 'play']
+
 def generate_token(user_id):
     """
     Generate JWT (Javascript Web Token)
@@ -107,10 +109,19 @@ def repanix(request):
             LOG.error(body)
 
         soup = BeautifulSoup(res.content, 'html.parser')
-        content = soup.select('.Content')
-        if not content:
-            content = soup.select('.play')
-        body = str(content[0])
+
+        content = []
+        for cclass in CONTENT_CLASSES:
+            content = soup.select('.' + cclass)
+            if content:
+                break
+
+        if content:
+            body = str(content[0])
+        else:
+            body = "No content class ('.Content', '.content' or 'body') found in page!"
+            LOG.error(body)
+
     else:
         body = "The url <strong>{}</strong> does not match the list of acceptable URLs".format(pageUrl)
         LOG.error(body)
