@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dislocation report</title>
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Dislocation report</h1>
+            <h2>{{ text_name }}</h2>
+            <p>There are {{ annos|length }} annotations.</p>
+            <p>
+                There are {{ sentences }} sentences in {{ numpara }} paragraphs
+                in the <b>{{ cclass }}</b> div.
+            </p>
+            <p>Totals by character:</p>
+            <ul>
+                {% for cid, cdata in char %}
+                <li>{{ cid }} ({{ cdata.name }}): {{ cdata.sents }}</li>
+                {% endfor %}
+            </ul>
+            <p>Totals by tag:</p>
+            <ul>
+                {% for tlist, tco in tcount %}
+                <li>{{ tlist }}. {{ tco }}</li>
+                {% endfor %}
+            </ul>
+            <p>Totals by tag list:</p>
+            <ul>
+                {% for tlist, tco in tlcount %}
+                <li>{{ tlist }}. {{ tco }}</li>
+                {% endfor %}
+            </ul>
+            <p>Totals by character and tag list:</p>
+            <ul>
+                {% for cid, ctd in ctcount %}
+                <li>{{ cid }}. {{ ctd }}</li>
+                {% endfor %}
+            </ul>
+            <p>Annotations:</p>
+            <ul>
+                {% for aid, anno in annod %}
+                <li>{{ aid }}. {{ anno }}</li>
+                {% endfor %}
+            </ul>
+            <p>Debugging:</p>
+            <p>{{ debug }}</p>
+            <script src="/static/js/bootstrap.min.js" />
+        </div>
+    </body>
+</html>

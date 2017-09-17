@@ -8,12 +8,12 @@
 <div style="color: green;" id="saved">Saved!</div>
 <p>By URL:</p>
 <table border="1">
-{% for uri in uris %}
-<tr>
-    <th>{{ uri.uri }}</th>
-    <td><button type="button" onClick="saveUri('{{ uri.uri }}')">Save</button></td>
-    <td><a href="/store/search?uri={{ uri.uri }}" target="_blank">View JSON</a></td>
-    <td><a href="/stage?uri={{ uri.uri }}" target="_blank">
+{% for name, uri in pages %}
+<tr title="{{ uri }}">
+    <th>{{ name }}</th>
+    <td><button type="button" onClick="saveUri('{{ uri }}')">Save</button></td>
+    <td><a href="/store/search?uri={{ uri }}" target="_blank">View JSON</a></td>
+    <td><a href="/stage?uri={{ uri }}" target="_blank">
         View annotated document
     </a></td>
 {% endfor %}

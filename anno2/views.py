@@ -23,7 +23,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from .models import Annotation
 from .serializers import UserSerializer, AnnotationSerializer
@@ -40,6 +40,17 @@ ACCEPTABLE_URLS = [
     ]
 
 CONTENT_CLASSES = ['Content', 'content', 'play']
+
+PUNCRE = re.compile('[.;?!]+')
+RANGERE = re.compile('/(\w+)\[(\d+)\]')
+DIVRANGERE = re.compile('/div\[(\d+)\]/p\[(\d+)\]')
+PCLASSRE = re.compile('(\w+?)(\d+)')
+
+INTERJECTIONS = [
+    'ah', 'ciel', 'oh', 'eh', 'eh, eh', 'quoi', 'toi', 'oui', 'non', 'oye',
+    'oye, oye',
+    'oye-', 'o ciel', 'crac', 'mon dieu', 'o mon dieu', "v'lan"
+    ]
 
 def generate_token(user_id):
     """
@@ -62,7 +73,19 @@ def profile(request):
     """
     uris = Annotation.objects.values('uri').distinct()
     t = loader.get_template('profile.html')
-    return HttpResponse(t.render({'uris': uris}))
+    pages = {}
+    for uri in uris:
+        name = text_name(uri['uri'])
+        pages[name] = uri['uri']
+    return HttpResponse(t.render({'uris': uris, 'pages': pages.items()}))
+
+def text_name(uri):
+    """
+    Given a text URI, return the base name of the text
+    """
+    uripath = urlparse(uri).path
+    basename = os.path.basename(uripath)
+    return os.path.splitext(basename)[0]
 
 @login_required
 def save_anno(request):
@@ -91,29 +114,26 @@ def root(request):
 def token(request):
     return(HttpResponse(generate_token(request.user.username)))
 
-def repanix(request):
-    pageUrl = request.GET.get('uri')
-    LOG.error(pageUrl)
-    urlOk = False
-    for urlRe in ACCEPTABLE_URLS:
-        urlMatch = urlRe.match(pageUrl)
-        if urlMatch:
-            urlOk = True
+def get_body_and_content_class(uri):
+    """
+    Extract the body and content code from the text
+    """
+    res = requests.get(uri)
+    body = ""
+    content = []
+    content_class = ""
+    soup = None
 
-    t = loader.get_template('stage.html')
-    if urlOk:
-        res = requests.get(pageUrl)
-        body = ""
-        if res.status_code != 200:
-            body = "Error retrieving web page {}: {}".format(pageUrl, res.status_code)
-            LOG.error(body)
-
+    if res.status_code != 200:
+        body = "Error retrieving web page {}: {}".format(uri, res.status_code)
+        LOG.error(body)
+    else:
         soup = BeautifulSoup(res.content, 'html.parser')
 
-        content = []
         for cclass in CONTENT_CLASSES:
             content = soup.select('.' + cclass)
             if content:
+                content_class = '.' + cclass
                 break
 
         if content:
@@ -121,6 +141,24 @@ def repanix(request):
         else:
             body = "No content class ('.Content', '.content' or 'body') found in page!"
             LOG.error(body)
+
+    return (body, soup, content_class)
+
+
+@login_required
+def repanix(request):
+    pageUrl = request.GET.get('uri')
+    LOG.error(pageUrl)
+    urlOk = False
+    content_class = '.Content'
+    for urlRe in ACCEPTABLE_URLS:
+        urlMatch = urlRe.match(pageUrl)
+        if urlMatch:
+            urlOk = True
+
+    t = loader.get_template('stage.html')
+    if urlOk:
+        (body, _, content_class) = get_body_and_content_class(pageUrl)
 
     else:
         body = "The url <strong>{}</strong> does not match the list of acceptable URLs".format(pageUrl)
@@ -130,9 +168,10 @@ def repanix(request):
         {
             'body': body,
             'url': pageUrl,
+            'content_class': content_class,
             'serverUri': os.environ.get('DJANGO_HOST')
             }
-            )
+        )
     return HttpResponse(trender)
 
 def jsfile(request):
@@ -141,6 +180,158 @@ def jsfile(request):
     """
     # LOG.error("jsfile: %s", os.environ.get('DJANGO_HOST'))
     return render(request, 'anno2.js', {'url': os.environ.get('DJANGO_HOST')})
+
+
+@login_required
+def reports(request):
+    """
+    Show the reports homepage
+    """
+    pages = {}
+    uris = Annotation.objects.values('uri').distinct()
+    for uri in uris:
+        name = text_name(uri['uri'])
+        pages[name] = uri['uri']
+    return render(
+        request, 'reports.html', {'uris': uris, 'pages': pages.items()}
+        )
+
+
+@login_required
+def dislocations(request):
+    """
+    Generate dislocation reports
+    """
+    uri=request.GET.get('uri')
+    annos = Annotation.objects.filter(uri=uri)
+    (_, soup, cclass) = get_body_and_content_class(uri)
+    classes = set()
+    char = {}
+    totalsent = 0
+
+    paras = soup.select(cclass)[0].find_all('p')
+    for idx, para in enumerate(paras):
+        if not para.get('class'):
+            continue
+        classes.update(para['class'])
+        pclass = para['class'][0]
+        cmatch = PCLASSRE.match(pclass)
+        if not cmatch:
+            continue
+
+        cname = cmatch.group(1)
+        cid = int(cmatch.group(2))
+        if cname == 'charn':
+            char.setdefault(cid, {})
+            if not char[cid].get('name'):
+                char[cid].setdefault('name', para.text)
+            continue
+
+        char.setdefault(cid, {})
+        char[cid].setdefault('sents', 0)
+        text = ''
+        for pcontent in para.children:
+            if isinstance(pcontent, Tag):
+                if pcontent.name != 'span':
+                    text += pcontent.text
+            else:
+                text += pcontent
+
+        # remove non-breaking spaces
+        text.replace('\xa0',' ')
+        sentences = PUNCRE.split(text)
+        for sent in sentences:
+            sent = sent.strip()
+            if len(sent) > 0 and sent.lower() not in INTERJECTIONS:
+                char[cid]['sents'] += 1
+                totalsent += 1
+
+    divs = soup.select(cclass)[0].find_all('div')
+    pcount = 0
+    pnum = {}
+    for didx, div in enumerate(divs):
+        pnum[didx] = {}
+        for idx, para in enumerate(div.find_all('p')):
+            pnum[didx][idx] = pcount
+            pcount += 1
+
+    annod = {}
+    ctcount = {}
+    tcount = {}
+    tlcount = {}
+    for anno in annos:
+        startd = 0
+        startp = 0
+        rtype = ''
+
+        tags = []
+        for tag in anno.tags.all():
+            tags.append(tag.name)
+            tcount.setdefault(tag.name, 0)
+            tcount[tag.name] += 1
+
+        tlist = ' '.join(sorted(tags))
+        tlcount.setdefault(tlist, 0)
+        tlcount[tlist] += 1
+
+        arange = anno.ranges.all()[:1][0]
+        rmatch = DIVRANGERE.match(arange.start)
+        if rmatch:
+            rtype = 'p'
+            startd = int(rmatch.group(1))-1
+            startp = int(rmatch.group(2))-1
+            para = paras[pnum[startd][startp]]
+        else:
+            rmatch = RANGERE.match(arange.start)
+            if rmatch:
+                rtype = rmatch.group(1)
+                startp = int(rmatch.group(2))-1
+            if rtype != 'p':
+                continue
+
+            para = paras[startp]
+
+        if not para.get('class'):
+            annod[anno.id] = {'error': 'no class'}
+            continue
+        cmatch = PCLASSRE.match(para['class'][0])
+        if not cmatch:
+            continue
+        cid = int(cmatch.group(2))
+        cname = char[cid]['name']
+
+        ctcount.setdefault(tlist, {})
+        ctcount[tlist].setdefault(cname, 0)
+        ctcount[tlist][cname] += 1
+
+        annod[anno.id] = {
+            'startp': startp,
+            'tags': tlist,
+            'quote': anno.quote,
+            'para': para,
+            'char': cid
+            }
+
+
+    # annoserial = AnnotationSerializer(annos, many=True).data
+    annoserial = ''
+    data = {
+        'uri': uri,
+        'text_name': text_name(uri),
+        'annos': annos,
+        'cclass': cclass,
+        'numpara': len(paras),
+        'sentences': totalsent,
+        'char': sorted(char.items()),
+        'tcount': sorted(tcount.items()),
+        'tlcount': sorted(tlcount.items()),
+        'ctcount': sorted(ctcount.items()),
+        'annod': sorted(annod.items()),
+        'debug': pnum
+        }
+
+    return render(request, 'dislocations.html', data)
+
 
 class LimitOffsetTotalRowsPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):
