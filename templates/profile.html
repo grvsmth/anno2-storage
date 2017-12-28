@@ -8,13 +8,14 @@
 </head><body>
     <div class="container">
         <h2>My annotations</h2>
-        <div id="saved" class="d-none success">Saved!</div>
-        <table class="table">
+        <div id="saved" class="d-none text-success">Saved!</div>
+        <table class="table" id="anno2table">
+            <tbody style="height: 80%; overflow: auto;">
         {% for name, uri in pages %}
             <tr title="{{ name }}">
                 <th>{{ name }}</th>
                 <td>
-                    <button type="button" class="btn btn-sm btn-success" onClick="saveUri('{{ uri }}')">
+                    <button type="button" class="btn btn-sm btn-success anno2button" uri="{{ uri }}">
                         Save
                     </button>
                 </td>
@@ -31,10 +32,11 @@
                 </td>
             </tr>
         {% endfor %}
+            </tbody>
         </table>
     </div>
 <script src="/static/js/jquery.min.js"></script>
-<script src="/static/js/bootstrap.min.js" />
+<!--script src="/static/js/bootstrap.min.js" / -->
 <script>
 function getCookie(name) {
     var cookieValue = null;
@@ -70,18 +72,21 @@ hiddenSaved = function() {
     $("#saved").addClass("d-none");
 };
 
-saveUri = function(aUri) {
+$('#anno2table').on('click', 'button', function() {
+    console.log("clicked!");
+    console.info(this.getAttribute('uri'));
+    aUri = this.getAttribute('uri');
     $.post( "/save/", {
         "uri": aUri
     })
     .done(function() {
         $("#saved").removeClass("d-none");
-        window.setTimeout( hideSaved, 1000);
+        window.setTimeout( hiddenSaved, 1000);
         })
         .fail(function(data, status, error){
            console.error(error);
         });
-};
+});
 </script>
 </body>
 </html>
