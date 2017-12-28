@@ -77,7 +77,7 @@ def profile(request):
     for uri in uris:
         name = text_name(uri['uri'])
         pages[name] = uri['uri']
-    return HttpResponse(t.render({'uris': uris, 'pages': pages.items()}))
+    return HttpResponse(t.render({'uris': uris, 'pages': sorted(pages.items())}))
 
 def text_name(uri):
     """
@@ -148,7 +148,7 @@ def get_body_and_content_class(uri):
 @login_required
 def repanix(request):
     pageUrl = request.GET.get('uri')
-    LOG.error(pageUrl)
+    LOG.error("repanix(%s)", pageUrl)
     urlOk = False
     content_class = '.Content'
     for urlRe in ACCEPTABLE_URLS:

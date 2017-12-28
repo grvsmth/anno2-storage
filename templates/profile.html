@@ -3,22 +3,38 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <title>My annotations</title>
 </head><body>
-<h2>My annotations</h2>
-<div style="color: green;" id="saved">Saved!</div>
-<p>By URL:</p>
-<table border="1">
-{% for name, uri in pages %}
-<tr title="{{ uri }}">
-    <th>{{ name }}</th>
-    <td><button type="button" onClick="saveUri('{{ uri }}')">Save</button></td>
-    <td><a href="/store/search?uri={{ uri }}" target="_blank">View JSON</a></td>
-    <td><a href="/stage?uri={{ uri }}" target="_blank">
-        View annotated document
-    </a></td>
-{% endfor %}
-</table>
+    <div class="container">
+        <h2>My annotations</h2>
+        <div id="saved" class="d-none success">Saved!</div>
+        <table class="table">
+        {% for name, uri in pages %}
+            <tr title="{{ name }}">
+                <th>{{ name }}</th>
+                <td>
+                    <button type="button" class="btn btn-sm btn-success" onClick="saveUri('{{ uri }}')">
+                        Save
+                    </button>
+                </td>
+                <td><a href="/store/search?uri={{ uri }}" target="_blank">
+                    View JSON
+                </a></td>
+                <td><a href="/stage?uri={{ uri }}" target="_blank">
+                    Annotated document
+                </a></td>
+                <td>
+                    <a href="/reports/dislocations?uri={{ uri }}" target="_blank">
+                        Dislocation report
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
 <script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js" />
 <script>
 function getCookie(name) {
     var cookieValue = null;
@@ -50,17 +66,16 @@ $.ajaxSetup({
     }
 });
 
-hideSaved = function() {
-    $("#saved").hide();
+hiddenSaved = function() {
+    $("#saved").addClass("d-none");
 };
-hideSaved();
 
 saveUri = function(aUri) {
     $.post( "/save/", {
         "uri": aUri
     })
     .done(function() {
-        $("#saved").show();
+        $("#saved").removeClass("d-none");
         window.setTimeout( hideSaved, 1000);
         })
         .fail(function(data, status, error){
