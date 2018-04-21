@@ -206,7 +206,7 @@ def dislocations(request):
     annos = Annotation.objects.filter(uri=uri)
     (_, soup, cclass) = get_body_and_content_class(uri)
     classes = set()
-    char = {}
+    char_total = {}
     totalsent = 0
 
     paras = soup.select(cclass)[0].find_all('p')
@@ -221,14 +221,18 @@ def dislocations(request):
 
         cname = cmatch.group(1)
         cid = int(cmatch.group(2))
+        char_total.setdefault(cid, {})
         if cname == 'charn':
-            char.setdefault(cid, {})
-            if not char[cid].get('name'):
-                char[cid].setdefault('name', para.text)
-            continue
+            if char_total[cid].get('name'):
+                continue
+            charname = next(para.stripped_strings)
+            char_total[cid]['name'] = charname
+            if ',' in charname:
+                char_total[cid]['name'] = charname.split(',')[0]
 
-        char.setdefault(cid, {})
-        char[cid].setdefault('sents', 0)
+        char_total[cid].setdefault('paras', 0)
+        char_total[cid]['paras'] += 1
+        char_total[cid].setdefault('sents', 0)
         text = ''
         for pcontent in para.children:
             if isinstance(pcontent, Tag):
@@ -243,7 +247,7 @@ def dislocations(request):
         for sent in sentences:
             sent = sent.strip()
             if len(sent) > 0 and sent.lower() not in INTERJECTIONS:
-                char[cid]['sents'] += 1
+                char_total[cid]['sents'] += 1
                 totalsent += 1
 
     divs = soup.select(cclass)[0].find_all('div')
@@ -263,16 +267,6 @@ def dislocations(request):
         startd = 0
         startp = 0
         rtype = ''
-
-        tags = []
-        for tag in anno.tags.all():
-            tags.append(tag.name)
-            tcount.setdefault(tag.name, 0)
-            tcount[tag.name] += 1
-
-        tlist = ' '.join(sorted(tags))
-        tlcount.setdefault(tlist, 0)
-        tlcount[tlist] += 1
 
         arange = anno.ranges.all()[:1][0]
         rmatch = DIVRANGERE.match(arange.start)
@@ -294,15 +288,25 @@ def dislocations(request):
         if not para.get('class'):
             annod[anno.id] = {'error': 'no class'}
             continue
+
         cmatch = PCLASSRE.match(para['class'][0])
         if not cmatch:
             continue
         cid = int(cmatch.group(2))
-        cname = char[cid]['name']
+        cname = char_total[cid]['name']
 
-        ctcount.setdefault(tlist, {})
-        ctcount[tlist].setdefault(cname, 0)
-        ctcount[tlist][cname] += 1
+        tags = []
+        for tag in anno.tags.all():
+            tags.append(tag.name)
+            tcount.setdefault(tag.name, 0)
+            tcount[tag.name] += 1
+
+        tlist = ' '.join(sorted(tags))
+        tlcount.setdefault(tlist, 0)
+        tlcount[tlist] += 1
+
+        char_total[cid].setdefault(tlist, 0)
+        char_total[cid][tlist] += 1
 
         annod[anno.id] = {
             'startp': startp,
@@ -312,9 +316,10 @@ def dislocations(request):
             'char': cid
             }
 
+    for tlist in tcount.keys():
+        for cid in char_total:
+            char_total[cid].setdefault(tlist, 0)
 
-    # annoserial = AnnotationSerializer(annos, many=True).data
-    annoserial = ''
     data = {
         'uri': uri,
         'text_name': text_name(uri),
@@ -322,7 +327,7 @@ def dislocations(request):
         'cclass': cclass,
         'numpara': len(paras),
         'sentences': totalsent,
-        'char': sorted(char.items()),
+        'char': sorted(char_total.items()),
         'tcount': sorted(tcount.items()),
         'tlcount': sorted(tlcount.items()),
         'ctcount': sorted(ctcount.items()),

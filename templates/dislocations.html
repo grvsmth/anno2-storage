@@ -14,11 +14,27 @@
                 in the <b>{{ cclass }}</b> div.
             </p>
             <p>Totals by character:</p>
-            <ul>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Paragraphs</th>
+                        <th>Sentences</th>
+                    </tr>
+                </thead>
+                <tbody>
                 {% for cid, cdata in char %}
-                <li>{{ cid }} ({{ cdata.name }}): {{ cdata.sents }}</li>
+                <tr>
+                    <td>{{ cid }}</td>
+                    <td>{{ cdata.name }}</td>
+                    <td>{{ cdata.paras }}</td>
+                    <td>{{ cdata.sents }}</td>
+                    <td>{{ cdata }}</td>
+                </tr>
                 {% endfor %}
-            </ul>
+                </tbody>
+            </table>
             <p>Totals by tag:</p>
             <ul>
                 {% for tlist, tco in tcount %}
@@ -29,12 +45,6 @@
             <ul>
                 {% for tlist, tco in tlcount %}
                 <li>{{ tlist }}. {{ tco }}</li>
-                {% endfor %}
-            </ul>
-            <p>Totals by character and tag list:</p>
-            <ul>
-                {% for cid, ctd in ctcount %}
-                <li>{{ cid }}. {{ ctd }}</li>
                 {% endfor %}
             </ul>
             <p>Annotations:</p>
