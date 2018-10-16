@@ -96,4 +96,9 @@ ENV/
 # JS and CSS libraries
 annotator-full.min.js
 annotator.min.css
+bootstrap*.css*
+bootstrap*.js
 jquery*.js
+
+output/
+theatredeparis/

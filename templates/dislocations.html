@@ -21,6 +21,10 @@
                         <th>Name</th>
                         <th>Paragraphs</th>
                         <th>Sentences</th>
+                        <th>ld</th>
+                        <th>ld interr</th>
+                        <th>rd</th>
+                        <th>rd interr</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,7 +34,10 @@
                     <td>{{ cdata.name }}</td>
                     <td>{{ cdata.paras }}</td>
                     <td>{{ cdata.sents }}</td>
-                    <td>{{ cdata }}</td>
+                    <td>{{ cdata.tcount.ld|default_if_none:0 }}</td>
+                    <td>{{ cdata.tlcount|get_item:'interr ld'|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.rd|default_if_none:0 }}</td>
+                    <td>{{ cdata.tlcount|get_item:'interr rd'|default_if_none:0 }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

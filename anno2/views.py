@@ -17,6 +17,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.template import loader
+from django.template.defaulttags import register
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.renderers import JSONRenderer
@@ -51,6 +52,11 @@ INTERJECTIONS = [
     'oye, oye',
     'oye-', 'o ciel', 'crac', 'mon dieu', 'o mon dieu', "v'lan"
     ]
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+    # return key
 
 def generate_token(user_id):
     """
@@ -206,7 +212,7 @@ def dislocations(request):
     annos = Annotation.objects.filter(uri=uri)
     (_, soup, cclass) = get_body_and_content_class(uri)
     classes = set()
-    char_total = {}
+    char = {}
     totalsent = 0
 
     paras = soup.select(cclass)[0].find_all('p')
@@ -221,18 +227,26 @@ def dislocations(request):
 
         cname = cmatch.group(1)
         cid = int(cmatch.group(2))
-        char_total.setdefault(cid, {})
+        char.setdefault(
+            cid,
+            {
+                'name': None,
+                'tcount': {},
+                'tlcount': {},
+                'paras': 0,
+                'sents': 0
+                }
+            )
         if cname == 'charn':
-            if char_total[cid].get('name'):
+            if char[cid]['name']:
                 continue
             charname = next(para.stripped_strings)
-            char_total[cid]['name'] = charname
+            char[cid]['name'] = charname
             if ',' in charname:
-                char_total[cid]['name'] = charname.split(',')[0]
+                char[cid]['name'] = charname.split(',')[0]
+            continue
 
-        char_total[cid].setdefault('paras', 0)
-        char_total[cid]['paras'] += 1
-        char_total[cid].setdefault('sents', 0)
+        char[cid]['paras'] += 1
         text = ''
         for pcontent in para.children:
             if isinstance(pcontent, Tag):
@@ -247,7 +261,8 @@ def dislocations(request):
         for sent in sentences:
             sent = sent.strip()
             if len(sent) > 0 and sent.lower() not in INTERJECTIONS:
-                char_total[cid]['sents'] += 1
+                LOG.error("%s: %s", char[cid]['name'], sent)
+                char[cid]['sents'] += 1
                 totalsent += 1
 
     divs = soup.select(cclass)[0].find_all('div')
@@ -285,6 +300,7 @@ def dislocations(request):
 
             para = paras[startp]
 
+
         if not para.get('class'):
             annod[anno.id] = {'error': 'no class'}
             continue
@@ -293,20 +309,22 @@ def dislocations(request):
         if not cmatch:
             continue
         cid = int(cmatch.group(2))
-        cname = char_total[cid]['name']
+        cname = char[cid]['name']
 
         tags = []
         for tag in anno.tags.all():
             tags.append(tag.name)
             tcount.setdefault(tag.name, 0)
             tcount[tag.name] += 1
+            char[cid]['tcount'].setdefault(tag.name, 0)
+            char[cid]['tcount'][tag.name] += 1
 
         tlist = ' '.join(sorted(tags))
         tlcount.setdefault(tlist, 0)
         tlcount[tlist] += 1
 
-        char_total[cid].setdefault(tlist, 0)
-        char_total[cid][tlist] += 1
+        char[cid]['tlcount'].setdefault(tlist, 0)
+        char[cid]['tlcount'][tlist] += 1
 
         annod[anno.id] = {
             'startp': startp,
@@ -317,8 +335,8 @@ def dislocations(request):
             }
 
     for tlist in tcount.keys():
-        for cid in char_total:
-            char_total[cid].setdefault(tlist, 0)
+        for cid in char:
+            char[cid].setdefault(tlist, 0)
 
     data = {
         'uri': uri,
@@ -327,7 +345,7 @@ def dislocations(request):
         'cclass': cclass,
         'numpara': len(paras),
         'sentences': totalsent,
-        'char': sorted(char_total.items()),
+        'char': sorted(char.items()),
         'tcount': sorted(tcount.items()),
         'tlcount': sorted(tlcount.items()),
         'ctcount': sorted(ctcount.items()),
