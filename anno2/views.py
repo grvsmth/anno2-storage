@@ -256,7 +256,7 @@ def dislocations(request):
                 text += pcontent
 
         # remove non-breaking spaces
-        text.replace('\xa0',' ')
+        text = text.replace('\xa0',' ')
         sentences = PUNCRE.split(text)
         for sent in sentences:
             sent = sent.strip()
