@@ -99,6 +99,7 @@ annotator.min.css
 bootstrap*.css*
 bootstrap*.js
 jquery*.js
+*.min.js
 
 output/
 theatredeparis/
