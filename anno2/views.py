@@ -42,7 +42,7 @@ ACCEPTABLE_URLS = [
 
 CONTENT_CLASSES = ['Content', 'content', 'play']
 
-PUNCRE = re.compile('[.;?!]+')
+PUNCRE = re.compile('([.;?!]+)')
 RANGERE = re.compile('/(\w+)\[(\d+)\]')
 DIVRANGERE = re.compile('/div\[(\d+)\]/p\[(\d+)\]')
 PCLASSRE = re.compile('(\w+?)(\d+)')
@@ -214,6 +214,7 @@ def dislocations(request):
     classes = set()
     char = {}
     totalsent = 0
+    totalq = 0
 
     paras = soup.select(cclass)[0].find_all('p')
     for idx, para in enumerate(paras):
@@ -234,7 +235,8 @@ def dislocations(request):
                 'tcount': {},
                 'tlcount': {},
                 'paras': 0,
-                'sents': 0
+                'sents': 0,
+                'questions': 0
                 }
             )
         if cname == 'charn':
@@ -258,10 +260,15 @@ def dislocations(request):
         # remove non-breaking spaces
         text = text.replace('\xa0',' ')
         sentences = PUNCRE.split(text)
-        for sent in sentences:
+        for idx, sent in enumerate(sentences):
+            if idx % 2 != 0:
+                if '?' in sent:
+                    char[cid]['questions'] += 1
+                    totalq += 1
+                continue
+
             sent = sent.strip()
             if len(sent) > 0 and sent.lower() not in INTERJECTIONS:
-                LOG.error("%s: %s", char[cid]['name'], sent)
                 char[cid]['sents'] += 1
                 totalsent += 1
 
@@ -298,6 +305,8 @@ def dislocations(request):
             if rtype != 'p':
                 continue
 
+            LOG.error(len(paras))
+            LOG.error(startp)
             para = paras[startp]
 
 
@@ -345,6 +354,7 @@ def dislocations(request):
         'cclass': cclass,
         'numpara': len(paras),
         'sentences': totalsent,
+        'questions': totalq,
         'char': sorted(char.items()),
         'tcount': sorted(tcount.items()),
         'tlcount': sorted(tlcount.items()),

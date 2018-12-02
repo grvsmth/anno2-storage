@@ -10,8 +10,9 @@
             <h2>{{ text_name }}</h2>
             <p>There are {{ annos|length }} annotations.</p>
             <p>
-                There are {{ sentences }} sentences in {{ numpara }} paragraphs
-                in the <b>{{ cclass }}</b> div.
+                There are {{ sentences }} sentences (including {{ questions }}
+                questions) in {{ numpara }} paragraphs in the
+                <b>{{ cclass }}</b> div.
             </p>
             <p>Totals by character:</p>
             <table class="table">
@@ -21,6 +22,7 @@
                         <th>Name</th>
                         <th>Paragraphs</th>
                         <th>Sentences</th>
+                        <th>Questions</th>
                         <th>ld</th>
                         <th>ld interr</th>
                         <th>rd</th>
@@ -34,6 +36,7 @@
                     <td>{{ cdata.name }}</td>
                     <td>{{ cdata.paras }}</td>
                     <td>{{ cdata.sents }}</td>
+                    <td>{{ cdata.questions }}</td>
                     <td>{{ cdata.tcount.ld|default_if_none:0 }}</td>
                     <td>{{ cdata.tlcount|get_item:'interr ld'|default_if_none:0 }}</td>
                     <td>{{ cdata.tcount.rd|default_if_none:0 }}</td>
@@ -62,7 +65,7 @@
             </ul>
             <p>Debugging:</p>
             <p>{{ debug }}</p>
-            <script src="/static/js/bootstrap.min.js" />
-        </div>
+           <script src="/static/js/bootstrap.min.js" />
+x        </div>
     </body>
 </html>
