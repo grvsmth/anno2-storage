@@ -164,7 +164,7 @@ def repanix(request):
 
     t = loader.get_template('stage.html')
     if urlOk:
-        (body, _, content_class) = get_body_and_content_class(pageUrl)
+        (body, soup, content_class) = get_body_and_content_class(pageUrl)
 
     else:
         body = "The url <strong>{}</strong> does not match the list of acceptable URLs".format(pageUrl)
@@ -174,6 +174,7 @@ def repanix(request):
         {
             'body': body,
             'url': pageUrl,
+            'title': soup.title.string,
             'content_class': content_class,
             'serverUri': os.environ.get('DJANGO_HOST')
             }
@@ -305,10 +306,9 @@ def dislocations(request):
             if rtype != 'p':
                 continue
 
-            LOG.error(len(paras))
-            LOG.error(startp)
+            if len(paras) <startp:
+                continue
             para = paras[startp]
-
 
         if not para.get('class'):
             annod[anno.id] = {'error': 'no class'}
