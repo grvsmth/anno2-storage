@@ -157,6 +157,8 @@ def repanix(request):
     LOG.error("repanix(%s)", pageUrl)
     urlOk = False
     content_class = '.Content'
+    title = ''
+
     for urlRe in ACCEPTABLE_URLS:
         urlMatch = urlRe.match(pageUrl)
         if urlMatch:
@@ -165,7 +167,10 @@ def repanix(request):
     t = loader.get_template('stage.html')
     if urlOk:
         (body, soup, content_class) = get_body_and_content_class(pageUrl)
-
+        if soup.title:
+            title = soup.title.string
+        else:
+            title = pageUrl.split('/')[-1]
     else:
         body = "The url <strong>{}</strong> does not match the list of acceptable URLs".format(pageUrl)
         LOG.error(body)
@@ -174,7 +179,7 @@ def repanix(request):
         {
             'body': body,
             'url': pageUrl,
-            'title': soup.title.string,
+            'title': title,
             'content_class': content_class,
             'serverUri': os.environ.get('DJANGO_HOST')
             }
