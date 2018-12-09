@@ -8,12 +8,16 @@
         <div class="container">
             <h1>Dislocation report</h1>
             <h2>{{ text_name }}</h2>
-            <p>There are {{ annos|length }} annotations.</p>
-            <p>
-                There are {{ sentences }} sentences (including {{ questions }}
-                questions) in {{ numpara }} paragraphs in the
-                <b>{{ cclass }}</b> div.
-            </p>
+            In the <b>{{ cclass }} div there are:</b>
+            <table class="table">
+                <tbody>
+                    <tr><td>Annotations</td><td>{{ annos|length }}</td></tr>
+                    <tr><td>Paragraphs</td><td>{{ numpara }}</td></tr>
+                    <tr><td>Sentences</td><td>{{ sentences }}</td></tr>
+                    <tr><td>Questions</td><td>{{ questions }}</td></tr>
+                </tbody>
+            </table>
+
             <p>Totals by character:</p>
             <table class="table">
                 <thead>
@@ -24,7 +28,8 @@
                         <th>Sentences</th>
                         <th>Questions</th>
                         <th>ld</th>
-                        <th>ld interr</th>
+                        <th>Complex inversion</th>
+                        <th>Contrastive topics</th>
                         <th>rd</th>
                         <th>rd interr</th>
                     </tr>
@@ -38,7 +43,8 @@
                     <td>{{ cdata.sents }}</td>
                     <td>{{ cdata.questions }}</td>
                     <td>{{ cdata.tcount.ld|default_if_none:0 }}</td>
-                    <td>{{ cdata.tlcount|get_item:'interr ld'|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.ci|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.ct|default_if_none:0 }}</td>
                     <td>{{ cdata.tcount.rd|default_if_none:0 }}</td>
                     <td>{{ cdata.tlcount|get_item:'interr rd'|default_if_none:0 }}</td>
                 </tr>
