@@ -208,13 +208,10 @@ def reports(request):
         request, 'reports.html', {'uris': uris, 'pages': pages.items()}
         )
 
-
-@login_required
-def dislocations(request):
+def dislocation_data(uri):
     """
-    Generate dislocation reports
+    Generate per-text data for dislocation report
     """
-    uri=request.GET.get('uri')
     annos = Annotation.objects.filter(uri=uri)
     (_, soup, cclass) = get_body_and_content_class(uri)
     classes = set()
@@ -288,7 +285,6 @@ def dislocations(request):
             pcount += 1
 
     annod = {}
-    ctcount = {}
     tcount = {}
     tlcount = {}
     for anno in annos:
@@ -362,13 +358,38 @@ def dislocations(request):
         'questions': totalq,
         'char': sorted(char.items()),
         'tcount': sorted(tcount.items()),
+        'tcountu': tcount,
         'tlcount': sorted(tlcount.items()),
-        'ctcount': sorted(ctcount.items()),
+        'tlcountu': tlcount,
         'annod': sorted(annod.items()),
-        'debug': pnum
+        'debug': None
         }
 
+    return data
+
+
+@login_required
+def dislocations(request):
+    """
+    Generate dislocation reports
+    """
+    uri=request.GET.get('uri')
+    data = dislocation_data(uri)
     return render(request, 'dislocations.html', data)
+
+
+@login_required
+def all_dislocations(request):
+    texts = {}
+    uris = Annotation.objects.values('uri').distinct()
+    for uri in uris:
+        name = text_name(uri['uri'])
+        texts[name] = dislocation_data(uri['uri'])
+        # pages[name] = uri['uri']
+
+
+    data = {'texts': texts}
+    return render(request, 'all_dislocations.html', data)
 
 
 class LimitOffsetTotalRowsPagination(LimitOffsetPagination):

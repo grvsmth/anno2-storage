@@ -31,7 +31,16 @@ urlpatterns = [
     url(r'^auth/token$', views.token, name='token'),
     url(r'^profile', views.profile, name='profile'),
     url(r'^reports/$', views.reports, name='reports'),
-    url(r'^reports/dislocations', views.dislocations, name='reports_dislocations'),
+    url(
+        r'^reports/dislocations',
+        views.dislocations,
+        name='reports_dislocations'
+        ),
+    url(
+        r'^reports/all_dislocations',
+        views.all_dislocations,
+        name='reports_all_dislocations'
+        ),
     url(r'^save', views.save_anno, name='save'),
     url(r'^stage', views.repanix, name='repanix'),
     url(r'^store/', include(router.urls)),

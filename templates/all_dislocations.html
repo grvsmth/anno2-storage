@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dislocation report</title>
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Combined dislocation report</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Paragraphs</th>
+                        <th>Sentences</th>
+                        <th>Questions</th>
+                        <th>ld</th>
+                        <th>Complex inversion</th>
+                        <th>Contrastive topics</th>
+                        <th>With <i>pour</i></th>
+                        <th>With <i>quant</i></th>
+                        <th>Conjoined NPs</th>
+                        <th>With <i>même</i></th>
+                        <th>rd</th>
+                        <th>rd interr</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for tid, tdata in texts.items %}
+                <tr>
+                    <td>
+                        <a href="/stage?uri={{ tdata.uri }}" target="_blank">{{ tid }}</a>
+                    </td>
+                    <td>{{ tdata.text_name }}</td>
+                    <td>{{ tdata.numpara }}</td>
+                    <td>{{ tdata.sentences }}</td>
+                    <td>{{ tdata.questions }}</td>
+                    <td>{{ tdata.tcountu.ld|default_if_none:0 }}</td>
+                    <td>{{ tdata.tcountu.ci|default_if_none:0 }}</td>
+                    <td>{{ tdata.tcountu.ct|default_if_none:0 }}</td>
+                    <td>{{ tdata.tcountu.pour|default_if_none:0 }}</td>
+                    <td>{{ tdata.tcountu.quant|default_if_none:0 }}</td>
+                    <td>{{ tdata.tcountu.conjoined|default_if_none:0 }}</td>
+                    <td>{{ tdata.tlcountu|get_item:'ld meme'|default_if_none:0 }}</td>
+                    <td>{{ tdata.tcountu.rd|default_if_none:0 }}</td>
+                    <td>{{ tdata.tlcountu|get_item:'interr rd'|default_if_none:0 }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p>Totals by tag:</p>
+            <ul>
+                {% for tlist, tco in tcount %}
+                <li>{{ tlist }}. {{ tco }}</li>
+                {% endfor %}
+            </ul>
+            <p>Totals by tag list:</p>
+            <ul>
+                {% for tlist, tco in tlcount %}
+                <li>{{ tlist }}. {{ tco }}</li>
+                {% endfor %}
+            </ul>
+            <p>Annotations:</p>
+            <ul>
+                {% for aid, anno in annod %}
+                <li>{{ aid }}. {{ anno }}</li>
+                {% endfor %}
+            </ul>
+            <p>Debugging:</p>
+            <p>{{ debug }}</p>
+           <script src="/static/js/bootstrap.min.js" />
+x        </div>
+    </body>
+</html>
