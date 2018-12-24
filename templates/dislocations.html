@@ -30,6 +30,10 @@
                         <th>ld</th>
                         <th>Complex inversion</th>
                         <th>Contrastive topics</th>
+                        <th>With <i>pour</i></th>
+                        <th>With <i>quant</i></th>
+                        <th>Conjoined NPs</th>
+                        <th>With <i>même</i></th>
                         <th>rd</th>
                         <th>rd interr</th>
                     </tr>
@@ -45,6 +49,10 @@
                     <td>{{ cdata.tcount.ld|default_if_none:0 }}</td>
                     <td>{{ cdata.tcount.ci|default_if_none:0 }}</td>
                     <td>{{ cdata.tcount.ct|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.pour|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.quant|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.conjoined|default_if_none:0 }}</td>
+                    <td>{{ cdata.tlcount|get_item:'ld meme'|default_if_none:0 }}</td>
                     <td>{{ cdata.tcount.rd|default_if_none:0 }}</td>
                     <td>{{ cdata.tlcount|get_item:'interr rd'|default_if_none:0 }}</td>
                 </tr>
