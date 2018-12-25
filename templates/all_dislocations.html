@@ -24,37 +24,74 @@
                         <th>With <i>même</i></th>
                         <th>rd</th>
                         <th>rd interr</th>
+                        <th>rd ci</th>
+                        <th>rd ct</th>
+                        <th>rd dem</th>
+                        <th>rd pour</th>
+                        <th>rd quant</th>
+                        <th>rd conjoined</th>
+                        <th>rd même</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for tid, tdata in texts.items %}
+                {% for tdata in texts|dictsort:'text_name' %}
                 <tr>
                     <td>
-                        <a href="/stage?uri={{ tdata.uri }}" target="_blank">{{ tid }}</a>
+                        <a href="/stage?uri={{ tdata.uri }}" target="_blank">{{ tdata.text_name }}</a>
                     </td>
                     <td>{{ tdata.text_name }}</td>
                     <td>{{ tdata.numpara }}</td>
                     <td>{{ tdata.sentences }}</td>
                     <td>{{ tdata.questions }}</td>
                     <td>{{ tdata.tcountu.ld|default_if_none:0 }}</td>
-                    <td>{{ tdata.tcountu.ci|default_if_none:0 }}</td>
-                    <td>{{ tdata.tcountu.ct|default_if_none:0 }}</td>
-                    <td>{{ tdata.tcountu.pour|default_if_none:0 }}</td>
-                    <td>{{ tdata.tcountu.quant|default_if_none:0 }}</td>
-                    <td>{{ tdata.tcountu.conjoined|default_if_none:0 }}</td>
-                    <td>{{ tdata.tlcountu|get_item:'ld meme'|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.ci|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.ct|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.dem|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.pour|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.quant|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.conjoined|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.meme|default_if_none:0 }}</td>
                     <td>{{ tdata.tcountu.rd|default_if_none:0 }}</td>
-                    <td>{{ tdata.tlcountu|get_item:'interr rd'|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.interr|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.ci|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.ct|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.dem|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.pour|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.quant|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.conjoined|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.meme|default_if_none:0 }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
             <p>Totals by tag:</p>
-            <ul>
-                {% for tlist, tco in tcount %}
-                <li>{{ tlist }}. {{ tco }}</li>
-                {% endfor %}
-            </ul>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Corpus</th>
+                        <th>Position</th>
+                        <th>All quasi-dislocated</th>
+                        {% for tag_name in tally_tags %}
+                        <th>{{ tag_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for corpus in corpora %}
+                        {% for position in positions %}
+                    <tr>
+                        <th>{{ corpus }}</th>
+                        <th>{{ position }}</th>
+                        <td>{{ tag_avg_percent|get_item:corpus|get_item:position|get_item:position|percent }}</td>
+                        {% for tag_name in tally_tags %}
+                        <td>{{ tag_avg_percent|get_item:corpus|get_item:position|get_item:tag_name|percent }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
             <p>Totals by tag list:</p>
             <ul>
                 {% for tlist, tco in tlcount %}
@@ -68,8 +105,8 @@
                 {% endfor %}
             </ul>
             <p>Debugging:</p>
-            <p>{{ debug }}</p>
+            <p>{{ tag_avg_percent }}</p>
            <script src="/static/js/bootstrap.min.js" />
-x        </div>
+        </div>
     </body>
 </html>

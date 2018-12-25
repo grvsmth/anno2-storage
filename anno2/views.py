@@ -2,6 +2,7 @@
 Views (JSON objects) for Annotator storage backend
 """
 
+from copy import deepcopy
 import datetime
 import jwt
 import logging
@@ -53,10 +54,21 @@ INTERJECTIONS = [
     'oye-', 'o ciel', 'crac', 'mon dieu', 'o mon dieu', "v'lan"
     ]
 
+CORPORA = ['dps', 'frantext']
+POSITIONS = ['ld', 'rd']
+FRANTEXT = ['2021MorH4b', '2330pinto2d', 'coelina-e3b', 'wallstein1a']
+TALLY_TAGS = ['ci', 'conjoined', 'ct', 'dem', 'meme', 'pour', 'quant']
+
+
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
     # return key
+
+@register.filter
+def percent(number):
+    return '{:.5%}'.format(number)
+
 
 def generate_token(user_id):
     """
@@ -208,6 +220,23 @@ def reports(request):
         request, 'reports.html', {'uris': uris, 'pages': pages.items()}
         )
 
+
+def get_position(tags):
+    """
+    Given a list of tags, determine if the annotation contains 'ld', 'rd' or
+    neither
+    """
+    position = None
+    for tag in tags:
+        if tag.name == 'ld':
+            position = 'ld'
+            break
+        if tag.name == 'rd':
+            position = 'rd'
+            break
+    return position
+
+
 def dislocation_data(uri):
     """
     Generate per-text data for dislocation report
@@ -218,6 +247,7 @@ def dislocation_data(uri):
     char = {}
     totalsent = 0
     totalq = 0
+    position_count = {'ld': {}, 'rd': {}}
 
     paras = soup.select(cclass)[0].find_all('p')
     for idx, para in enumerate(paras):
@@ -239,7 +269,8 @@ def dislocation_data(uri):
                 'tlcount': {},
                 'paras': 0,
                 'sents': 0,
-                'questions': 0
+                'questions': 0,
+                'position_count': deepcopy(position_count)
                 }
             )
         if cname == 'charn':
@@ -292,6 +323,10 @@ def dislocation_data(uri):
         startp = 0
         rtype = ''
 
+        position = get_position(anno.tags.all())
+        if not position:
+            continue
+
         arange = anno.ranges.all()[:1][0]
         rmatch = DIVRANGERE.match(arange.start)
         if rmatch:
@@ -323,6 +358,12 @@ def dislocation_data(uri):
 
         tags = []
         for tag in anno.tags.all():
+            if tag.name != position:
+                position_count[position].setdefault(tag.name, 0)
+                position_count[position][tag.name] += 1
+                char[cid]['position_count'][position].setdefault(tag.name, 0)
+                char[cid]['position_count'][position][tag.name] += 1
+
             tags.append(tag.name)
             tcount.setdefault(tag.name, 0)
             tcount[tag.name] += 1
@@ -361,6 +402,7 @@ def dislocation_data(uri):
         'tcountu': tcount,
         'tlcount': sorted(tlcount.items()),
         'tlcountu': tlcount,
+        'position_count': position_count,
         'annod': sorted(annod.items()),
         'debug': None
         }
@@ -380,15 +422,67 @@ def dislocations(request):
 
 @login_required
 def all_dislocations(request):
-    texts = {}
+    texts = []
+    tag_count = {'dps': {}, 'frantext': {}}
+    tag_percent = {'dps': {}, 'frantext': {}}
+    tag_avg_percent = {'dps': {}, 'frantext': {}}
+    text_count = {'dps': 0, 'frantext': 0}
+
     uris = Annotation.objects.values('uri').distinct()
     for uri in uris:
         name = text_name(uri['uri'])
-        texts[name] = dislocation_data(uri['uri'])
-        # pages[name] = uri['uri']
+        text_data = dislocation_data(uri['uri'])
+        texts.append(text_data)
 
+        sentences = text_data['sentences']
 
-    data = {'texts': texts}
+        corpus = 'dps'
+        if name in FRANTEXT:
+            corpus = 'frantext'
+
+        text_count[corpus] += 1
+
+        for position in POSITIONS:
+            position_total = text_data["tcountu"][position]
+            tag_count[corpus].setdefault(position, {})
+            tag_percent[corpus].setdefault(position, {})
+
+            tag_count[corpus][position].setdefault(position, [])
+            tag_count[corpus][position][position].append(position_total)
+
+            tag_percent[corpus][position].setdefault(position, [])
+            tag_percent[corpus][position][position].append(
+                position_total / sentences
+                )
+
+            for tag in TALLY_TAGS:
+                tally = text_data["position_count"][position].get(tag) or 0
+                tag_count[corpus][position].setdefault(tag, [])
+                tag_percent[corpus][position].setdefault(tag, [])
+                tag_count[corpus][position][tag].append(tally)
+                tag_percent[corpus][position][tag].append( tally / sentences )
+
+    for corpus in CORPORA:
+        tcount = text_count[corpus]
+        for position in POSITIONS:
+            tag_avg_percent[corpus].setdefault(position, {})
+            position_avg = sum(tag_percent[corpus][position][position])/ tcount
+            tag_avg_percent[corpus][position][position] = position_avg
+
+            for tag in TALLY_TAGS:
+                total_sum = sum(tag_percent[corpus][position][tag])
+                tag_avg_percent[corpus][position][tag] = total_sum / tcount
+
+    data = {
+        'texts': texts,
+        'corpora': CORPORA,
+        'positions': POSITIONS,
+        'tally_tags': TALLY_TAGS,
+        'tag_count': tag_count,
+        'tag_percent': tag_percent,
+        'tag_avg_percent': tag_avg_percent
+        }
+
     return render(request, 'all_dislocations.html', data)
 
 
