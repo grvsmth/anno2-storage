@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dislocation report</title>
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Combined dislocation report</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Text</th>
+                        <th>Name</th>
+                        <th>Paragraphs</th>
+                        <th>Sentences</th>
+                        <th>Questions</th>
+                        <th>ld</th>
+                        <th>CLLD</th>
+                        <th>Complex inversion</th>
+                        <th>Contrastive topics</th>
+                        <th>With <i>pour</i></th>
+                        <th>With <i>quant</i></th>
+                        <th>Conjoined NPs</th>
+                        <th>With <i>même</i></th>
+                        <th>rd</th>
+                        <th>rd ci</th>
+                        <th>rd ct</th>
+                        <th>rd dem</th>
+                        <th>rd pour</th>
+                        <th>rd quant</th>
+                        <th>rd conjoined</th>
+                        <th>rd même</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for tdata in texts|dictsort:'text_name' %}
+                <tr>
+                    <td>
+                        <a href="/stage?uri={{ tdata.uri }}" target="_blank">{{ tdata.text_name }}</a>
+                    </td>
+                    <td>{{ tdata.char_data.name }}</td>
+                    <td>{{ tdata.char_data.paras }}</td>
+                    <td>{{ tdata.char_data.sents }}</td>
+                    <td>{{ tdata.char_data.questions }}</td>
+                    <td>{{ tdata.char_data.tcount.ld }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.clld|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.ci|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.ct|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.pour|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.quant|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.conjoined|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.meme|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.tcount.rd }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.clld|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.ci|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.ct|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.dem|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.pour|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.quant|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.conjoined|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.rd.meme|default_if_none:0 }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <p>Totals by tag list:</p>
+            <ul>
+                {% for tlist, tco in tlcount %}
+                <li>{{ tlist }}. {{ tco }}</li>
+                {% endfor %}
+            </ul>
+            <p>Annotations:</p>
+            <ul>
+                {% for aid, anno in annod %}
+                <li>{{ aid }}. {{ anno }}</li>
+                {% endfor %}
+            </ul>
+            <p>Debugging:</p>
+            <p>{{ tag_es }}</p>
+           <script src="/static/js/bootstrap.min.js" />
+        </div>
+    </body>
+</html>

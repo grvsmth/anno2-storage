@@ -192,7 +192,6 @@ def get_body_and_content_class(uri):
 @login_required
 def repanix(request):
     pageUrl = request.GET.get('uri')
-    LOG.error("repanix(%s)", pageUrl)
     urlOk = False
     content_class = '.Content'
     title = ''
@@ -228,7 +227,6 @@ def jsfile(request):
     """
     Return the anno2.js file with the URL of this server
     """
-    # LOG.error("jsfile: %s", os.environ.get('DJANGO_HOST'))
     return render(request, 'anno2.js', {'url': os.environ.get('DJANGO_HOST')})
 
 
@@ -436,7 +434,6 @@ def dislocation_data(uri):
         for cid in char:
             char[cid].setdefault(tlist, 0)
 
-    LOG.error("%s: tcount['clld'] = %s", text_name(uri), tcount['clld'])
     data = {
         'uri': uri,
         'text_name': text_name(uri),
@@ -466,6 +463,58 @@ def dislocations(request):
     uri=request.GET.get('uri')
     data = dislocation_data(uri)
     return render(request, 'dislocations.html', data)
+
+
+def loquacious(char_data):
+    """
+    Find the character with the most sentences in a text
+    """
+    return max(char_data, key=lambda x:x[1]['sents'])
+
+
+@login_required
+def dislocations_by_char(request):
+
+    texts = []
+    uris = Annotation.objects.values('uri').distinct()
+
+    for uri in uris:
+        name = text_name(uri['uri'])
+        if name in EXCLUDE_TEXTS:
+            continue
+
+        text_data = dislocation_data(uri['uri'])
+
+        (char_id, char_data) = loquacious(text_data['char'])
+
+        new_text_data = {
+            'text_name': name,
+            'char_id': char_id,
+            'char_data': char_data
+            }
+
+        LOG.error(new_text_data)
+        texts.append(new_text_data)
+
+
+    data = {
+        'texts': texts,
+        'corpora': CORPORA,
+        'positions': POSITIONS,
+        'tally_tags': TALLY_TAGS
+        }
+    """
+    'tag_count': tag_count,
+    'tag_percent': tag_percent,
+    'tag_avg_percent': tag_avg_percent,
+    'tag_total_count': tag_total_count,
+    'tag_ttest': tag_ttest,
+    'tag_es': tag_es
+    """
+
+    LOG.error(data)
+
+    return render(request, 'dislocations_by_char.html', data)
 
 
 @login_required

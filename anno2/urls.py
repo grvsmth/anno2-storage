@@ -32,6 +32,11 @@ urlpatterns = [
     url(r'^profile', views.profile, name='profile'),
     url(r'^reports/$', views.reports, name='reports'),
     url(
+        r'^reports/dislocations_by_char',
+        views.dislocations_by_char,
+        name='reports_dislocations_by_char'
+        ),
+    url(
         r'^reports/dislocations',
         views.dislocations,
         name='reports_dislocations'
@@ -40,7 +45,7 @@ urlpatterns = [
         r'^reports/all_dislocations',
         views.all_dislocations,
         name='reports_all_dislocations'
-        ),
+            ),
     url(r'^save', views.save_anno, name='save'),
     url(r'^stage', views.repanix, name='repanix'),
     url(r'^store/', include(router.urls)),
