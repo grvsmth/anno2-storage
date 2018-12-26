@@ -9,6 +9,7 @@ import logging
 import os
 import re
 from collections import OrderedDict
+from math import sqrt
 from urllib.parse import urlparse
 
 import django_filters.rest_framework
@@ -24,8 +25,11 @@ from rest_framework import viewsets
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
+
 import requests
 from bs4 import BeautifulSoup, Tag
+from numpy import mean, var
+from scipy.stats import ttest_1samp
 
 from .models import Annotation
 from .serializers import UserSerializer, AnnotationSerializer
@@ -54,9 +58,10 @@ INTERJECTIONS = [
     'oye-', 'o ciel', 'crac', 'mon dieu', 'o mon dieu', "v'lan"
     ]
 
-CORPORA = ['dps', 'frantext']
+CORPORA = ['frantext', 'dps']
 POSITIONS = ['ld', 'rd']
 FRANTEXT = ['2021MorH4b', '2330pinto2d', 'coelina-e3b', 'wallstein1a']
+EXCLUDE_TEXTS = ['1563Jocrisse3a']
 TALLY_TAGS = ['ci', 'conjoined', 'ct', 'dem', 'meme', 'pour', 'quant']
 
 
@@ -65,9 +70,29 @@ def get_item(dictionary, key):
     return dictionary.get(key)
     # return key
 
+
 @register.filter
 def percent(number):
     return '{:.5%}'.format(number)
+
+
+@register.filter
+def places_5(number):
+    return '{0:.5f}'.format(number)
+
+
+def cohend(d1, d2):
+    # https://machinelearningmastery.com/effect-size-measures-in-python/
+	# calculate the size of samples
+	n1, n2 = len(d1), len(d2)
+	# calculate the variance of the samples
+	s1, s2 = var(d1, ddof=1), var(d2, ddof=1)
+	# calculate the pooled standard deviation
+	s = sqrt(((n1 - 1) * s1 + (n2 - 1) * s2) / (n1 + n2 - 2))
+	# calculate the means of the samples
+	u1, u2 = mean(d1), mean(d2)
+	# calculate the effect size
+	return (u1 - u2) / s
 
 
 def generate_token(user_id):
@@ -426,11 +451,19 @@ def all_dislocations(request):
     tag_count = {'dps': {}, 'frantext': {}}
     tag_percent = {'dps': {}, 'frantext': {}}
     tag_avg_percent = {'dps': {}, 'frantext': {}}
+    tag_total_count = {'dps': {}, 'frantext': {}}
     text_count = {'dps': 0, 'frantext': 0}
+    sentence_count = {'dps': 0, 'frantext': 0}
+    question_count = {'dps': 0, 'frantext': 0}
+    tag_ttest = {}
+    tag_es = {}
 
     uris = Annotation.objects.values('uri').distinct()
     for uri in uris:
         name = text_name(uri['uri'])
+        if name in EXCLUDE_TEXTS:
+            continue
+
         text_data = dislocation_data(uri['uri'])
         texts.append(text_data)
 
@@ -441,6 +474,8 @@ def all_dislocations(request):
             corpus = 'frantext'
 
         text_count[corpus] += 1
+        sentence_count[corpus] += sentences
+        question_count[corpus] += text_data['questions']
 
         for position in POSITIONS:
             position_total = text_data["tcountu"][position]
@@ -462,25 +497,59 @@ def all_dislocations(request):
                 tag_count[corpus][position][tag].append(tally)
                 tag_percent[corpus][position][tag].append( tally / sentences )
 
+            # TODO computed tags (ld as we report it, etc)
+
     for corpus in CORPORA:
         tcount = text_count[corpus]
         for position in POSITIONS:
+
             tag_avg_percent[corpus].setdefault(position, {})
-            position_avg = sum(tag_percent[corpus][position][position])/ tcount
-            tag_avg_percent[corpus][position][position] = position_avg
+            tag_total_count[corpus].setdefault(position, {})
+            position_sum = sum(tag_percent[corpus][position][position])
+            position_count = sum(tag_count[corpus][position][position])
+            tag_total_count[corpus][position][position] = position_count
+            tag_avg_percent[corpus][position][position] = position_sum / tcount
+            if corpus == 'dps':
+                tag_ttest.setdefault(position, {})
+                tag_es.setdefault(position, {})
+                tag_ttest[position][position] = ttest_1samp(
+                    tag_percent[corpus][position][position],
+                    tag_avg_percent['frantext'][position][position]
+                    ).pvalue
+                tag_es.setdefault(position, {})
+                tag_es[position][position] = cohend(
+                    tag_percent['dps'][position][position],
+                    tag_percent['frantext'][position][position]
+                    )
 
             for tag in TALLY_TAGS:
-                total_sum = sum(tag_percent[corpus][position][tag])
-                tag_avg_percent[corpus][position][tag] = total_sum / tcount
+                tag_sum = sum(tag_percent[corpus][position][tag])
+                tag_count_sum = sum(tag_count[corpus][position][tag])
+                tag_total_count[corpus][position][tag] = tag_count_sum
+                tag_avg_percent[corpus][position][tag] = tag_sum / tcount
+                if corpus == 'dps':
+                    tag_ttest[position][tag] = ttest_1samp(
+                        tag_percent[corpus][position][tag],
+                        tag_avg_percent['frantext'][position][tag]
+                        ).pvalue
+                    tag_es[position][tag] = cohend(
+                        tag_percent['dps'][position][tag],
+                        tag_percent['frantext'][position][tag]
+                        )
 
     data = {
         'texts': texts,
+        'sentences': sentence_count,
+        'questions': question_count,
         'corpora': CORPORA,
         'positions': POSITIONS,
         'tally_tags': TALLY_TAGS,
         'tag_count': tag_count,
         'tag_percent': tag_percent,
-        'tag_avg_percent': tag_avg_percent
+        'tag_avg_percent': tag_avg_percent,
+        'tag_total_count': tag_total_count,
+        'tag_ttest': tag_ttest,
+        'tag_es': tag_es
         }
 
     return render(request, 'all_dislocations.html', data)

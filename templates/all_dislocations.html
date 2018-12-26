@@ -70,6 +70,9 @@
                     <tr>
                         <th>Corpus</th>
                         <th>Position</th>
+                        <th>Statistic</th>
+                        <th>Sentences</th>
+                        <th>Questions</th>
                         <th>All quasi-dislocated</th>
                         {% for tag_name in tally_tags %}
                         <th>{{ tag_name }}</th>
@@ -82,12 +85,50 @@
                     <tr>
                         <th>{{ corpus }}</th>
                         <th>{{ position }}</th>
+                        <th>Total count</th>
+                        <td>{{ sentences|get_item:corpus }}</td>
+                        <td>{{ questions|get_item:corpus }}</td>
+                        <td>{{ tag_total_count|get_item:corpus|get_item:position|get_item:position }}</td>
+                        {% for tag_name in tally_tags %}
+                        <td>{{ tag_total_count|get_item:corpus|get_item:position|get_item:tag_name }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th>{{ corpus }}</th>
+                        <th>{{ position }}</th>
+                        <th>Average percent</th>
+                        <td></td>
+                        <td></td>
                         <td>{{ tag_avg_percent|get_item:corpus|get_item:position|get_item:position|percent }}</td>
                         {% for tag_name in tally_tags %}
                         <td>{{ tag_avg_percent|get_item:corpus|get_item:position|get_item:tag_name|percent }}</td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
+                    {% endfor %}
+                        {% for position in positions %}
+                    <tr>
+                        <th></th>
+                        <th>{{ position }}</th>
+                        <th>t-test</th>
+                        <td></td>
+                        <td></td>
+                        <td>{{ tag_ttest|get_item:position|get_item:position|places_5 }}</td>
+                        {% for tag_name in tally_tags %}
+                        <td>{{ tag_ttest|get_item:position|get_item:tag_name|places_5 }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>{{ position }}</th>
+                        <th>Cohen's <i>d</i></th>
+                        <td></td>
+                        <td></td>
+                        <td>{{ tag_es|get_item:position|get_item:position|places_5 }}</td>
+                        {% for tag_name in tally_tags %}
+                        <td>{{ tag_es|get_item:position|get_item:tag_name }}</td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -105,7 +146,7 @@
                 {% endfor %}
             </ul>
             <p>Debugging:</p>
-            <p>{{ tag_avg_percent }}</p>
+            <p>{{ tag_es }}</p>
            <script src="/static/js/bootstrap.min.js" />
         </div>
     </body>
