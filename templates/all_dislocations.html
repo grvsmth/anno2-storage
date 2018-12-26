@@ -16,6 +16,7 @@
                         <th>Sentences</th>
                         <th>Questions</th>
                         <th>ld</th>
+                        <th>CLLD</th>
                         <th>Complex inversion</th>
                         <th>Contrastive topics</th>
                         <th>With <i>pour</i></th>
@@ -44,6 +45,7 @@
                     <td>{{ tdata.sentences }}</td>
                     <td>{{ tdata.questions }}</td>
                     <td>{{ tdata.tcountu.ld|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.clld|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.ci|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.ct|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.dem|default_if_none:0 }}</td>
@@ -53,6 +55,7 @@
                     <td>{{ tdata.position_count.ld.meme|default_if_none:0 }}</td>
                     <td>{{ tdata.tcountu.rd|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.interr|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.clld|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.ci|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.ct|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.dem|default_if_none:0 }}</td>
@@ -126,7 +129,7 @@
                         <td></td>
                         <td>{{ tag_es|get_item:position|get_item:position|places_5 }}</td>
                         {% for tag_name in tally_tags %}
-                        <td>{{ tag_es|get_item:position|get_item:tag_name }}</td>
+                        <td>{{ tag_es|get_item:position|get_item:tag_name|places_5 }}</td>
                         {% endfor %}
                     </tr>
                     {% endfor %}

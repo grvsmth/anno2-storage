@@ -62,7 +62,8 @@ CORPORA = ['frantext', 'dps']
 POSITIONS = ['ld', 'rd']
 FRANTEXT = ['2021MorH4b', '2330pinto2d', 'coelina-e3b', 'wallstein1a']
 EXCLUDE_TEXTS = ['1563Jocrisse3a']
-TALLY_TAGS = ['ci', 'conjoined', 'ct', 'dem', 'meme', 'pour', 'quant']
+TALLY_TAGS = ['ci', 'clld', 'conjoined', 'ct', 'dem', 'meme', 'pour', 'quant']
+NOT_CLLD_TAGS = set(['ci', 'ct', 'conjoined', 'meme'])
 
 
 @register.filter
@@ -262,6 +263,20 @@ def get_position(tags):
     return position
 
 
+def is_clld(tags):
+    """
+    Given a list of tags, determine if this is an example of clitic left
+    dislocation
+    """
+    anno_is_clld = True
+    anno_tags = set(tags)
+    intersection = NOT_CLLD_TAGS & anno_tags
+    if len(intersection):
+        anno_is_clld = False
+
+    return anno_is_clld
+
+
 def dislocation_data(uri):
     """
     Generate per-text data for dislocation report
@@ -272,7 +287,7 @@ def dislocation_data(uri):
     char = {}
     totalsent = 0
     totalq = 0
-    position_count = {'ld': {}, 'rd': {}}
+    position_count = {'ld': {'clld': 0}, 'rd': {'clld': 0}}
 
     paras = soup.select(cclass)[0].find_all('p')
     for idx, para in enumerate(paras):
@@ -290,7 +305,7 @@ def dislocation_data(uri):
             cid,
             {
                 'name': None,
-                'tcount': {},
+                'tcount': {'clld': 0},
                 'tlcount': {},
                 'paras': 0,
                 'sents': 0,
@@ -341,7 +356,7 @@ def dislocation_data(uri):
             pcount += 1
 
     annod = {}
-    tcount = {}
+    tcount = {'clld': 0}
     tlcount = {}
     for anno in annos:
         startd = 0
@@ -395,6 +410,13 @@ def dislocation_data(uri):
             char[cid]['tcount'].setdefault(tag.name, 0)
             char[cid]['tcount'][tag.name] += 1
 
+        if is_clld(tags):
+            tags.append('clld')
+            tcount['clld'] += 1
+            char[cid]['tcount']['clld'] += 1
+            position_count[position]['clld'] += 1
+            char[cid]['position_count'][position]['clld'] += 1
+
         tlist = ' '.join(sorted(tags))
         tlcount.setdefault(tlist, 0)
         tlcount[tlist] += 1
@@ -414,6 +436,7 @@ def dislocation_data(uri):
         for cid in char:
             char[cid].setdefault(tlist, 0)
 
+    LOG.error("%s: tcount['clld'] = %s", text_name(uri), tcount['clld'])
     data = {
         'uri': uri,
         'text_name': text_name(uri),
@@ -497,10 +520,9 @@ def all_dislocations(request):
                 tag_count[corpus][position][tag].append(tally)
                 tag_percent[corpus][position][tag].append( tally / sentences )
 
-            # TODO computed tags (ld as we report it, etc)
 
     for corpus in CORPORA:
-        tcount = text_count[corpus]
+        corpus_text_count = text_count[corpus]
         for position in POSITIONS:
 
             tag_avg_percent[corpus].setdefault(position, {})
@@ -508,7 +530,7 @@ def all_dislocations(request):
             position_sum = sum(tag_percent[corpus][position][position])
             position_count = sum(tag_count[corpus][position][position])
             tag_total_count[corpus][position][position] = position_count
-            tag_avg_percent[corpus][position][position] = position_sum / tcount
+            tag_avg_percent[corpus][position][position] = position_sum / corpus_text_count
             if corpus == 'dps':
                 tag_ttest.setdefault(position, {})
                 tag_es.setdefault(position, {})
@@ -526,7 +548,7 @@ def all_dislocations(request):
                 tag_sum = sum(tag_percent[corpus][position][tag])
                 tag_count_sum = sum(tag_count[corpus][position][tag])
                 tag_total_count[corpus][position][tag] = tag_count_sum
-                tag_avg_percent[corpus][position][tag] = tag_sum / tcount
+                tag_avg_percent[corpus][position][tag] = tag_sum / corpus_text_count
                 if corpus == 'dps':
                     tag_ttest[position][tag] = ttest_1samp(
                         tag_percent[corpus][position][tag],
