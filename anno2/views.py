@@ -62,7 +62,9 @@ CORPORA = ['frantext', 'dps']
 POSITIONS = ['ld', 'rd']
 FRANTEXT = ['2021MorH4b', '2330pinto2d', 'coelina-e3b', 'wallstein1a']
 EXCLUDE_TEXTS = ['1563Jocrisse3a']
-TALLY_TAGS = ['ci', 'clld', 'conjoined', 'ct', 'dem', 'meme', 'pour', 'quant']
+TALLY_TAGS = [
+    'ci', 'clld', 'conjoined', 'ct', 'dem', 'meme', 'pour', 'quant', 'prep'
+    ]
 NOT_CLLD_TAGS = set(['ci', 'ct', 'conjoined', 'meme'])
 
 
@@ -285,7 +287,10 @@ def dislocation_data(uri):
     char = {}
     totalsent = 0
     totalq = 0
-    position_count = {'ld': {'clld': 0}, 'rd': {'clld': 0}}
+    position_count = {
+        'ld': {'clld': 0, 'prep': 0},
+        'rd': {'clld': 0, 'prep': 0}
+        }
 
     paras = soup.select(cclass)[0].find_all('p')
     for idx, para in enumerate(paras):
@@ -303,7 +308,7 @@ def dislocation_data(uri):
             cid,
             {
                 'name': None,
-                'tcount': {'clld': 0},
+                'tcount': {'clld': 0, 'prep': 0},
                 'tlcount': {},
                 'paras': 0,
                 'sents': 0,
@@ -354,7 +359,7 @@ def dislocation_data(uri):
             pcount += 1
 
     annod = {}
-    tcount = {'clld': 0}
+    tcount = {'clld': 0, 'prep': 0}
     tlcount = {}
     for anno in annos:
         startd = 0
@@ -434,6 +439,12 @@ def dislocation_data(uri):
         for cid in char:
             char[cid].setdefault(tlist, 0)
 
+    prep_count = tcount.get('pour', 0) + tcount.get('quant', 0)
+    tcount['prep'] = prep_count
+    char[cid]['tcount']['prep'] = prep_count
+    position_count[position]['prep'] = prep_count
+    char[cid]['position_count'][position]['prep'] = prep_count
+
     data = {
         'uri': uri,
         'text_name': text_name(uri),
@@ -503,16 +514,6 @@ def dislocations_by_char(request):
         'positions': POSITIONS,
         'tally_tags': TALLY_TAGS
         }
-    """
-    'tag_count': tag_count,
-    'tag_percent': tag_percent,
-    'tag_avg_percent': tag_avg_percent,
-    'tag_total_count': tag_total_count,
-    'tag_ttest': tag_ttest,
-    'tag_es': tag_es
-    """
-
-    LOG.error(data)
 
     return render(request, 'dislocations_by_char.html', data)
 
