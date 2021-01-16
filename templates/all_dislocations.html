@@ -17,6 +17,7 @@
                         <th>Questions</th>
                         <th>ld</th>
                         <th>CLLD</th>
+                        <th>ld canonical</th>
                         <th>Complex inversion</th>
                         <th>Contrastive topics</th>
                         <th>With dem</th>
@@ -26,6 +27,8 @@
                         <th>Conjoined NPs</th>
                         <th>With <i>même</i></th>
                         <th>rd</th>
+                        <th>rd clld</th>
+                        <th>rd canonical</th>
                         <th>rd ci</th>
                         <th>rd ct</th>
                         <th>rd dem</th>
@@ -48,6 +51,7 @@
                     <td>{{ tdata.questions }}</td>
                     <td>{{ tdata.tcountu.ld|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.clld|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.ld.canonical|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.ci|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.ct|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.dem|default_if_none:0 }}</td>
@@ -57,8 +61,8 @@
                     <td>{{ tdata.position_count.ld.conjoined|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.ld.meme|default_if_none:0 }}</td>
                     <td>{{ tdata.tcountu.rd|default_if_none:0 }}</td>
-                    <td>{{ tdata.position_count.rd.interr|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.clld|default_if_none:0 }}</td>
+                    <td>{{ tdata.position_count.rd.canonical|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.ci|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.ct|default_if_none:0 }}</td>
                     <td>{{ tdata.position_count.rd.dem|default_if_none:0 }}</td>

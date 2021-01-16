@@ -63,9 +63,16 @@ POSITIONS = ['ld', 'rd']
 FRANTEXT = ['2021MorH4b', '2330pinto2d', 'coelina-e3b', 'wallstein1a']
 EXCLUDE_TEXTS = ['1563Jocrisse3a']
 TALLY_TAGS = [
-    'ci', 'clld', 'conjoined', 'ct', 'dem', 'meme', 'pour', 'quant', 'prep'
+    'ci', 'clld', 'canonical', 'conjoined', 'ct', 'dem', 'demdis', 'meme',
+    'pour', 'quant', 'prep'
     ]
-NOT_CLLD_TAGS = set(['ci', 'ct', 'conjoined', 'meme'])
+NOT_CLLD_TAGS = set(['ci', 'ct', 'conjoined', 'meme', 'dem'])
+NON_CANONICAL_TAGS = set(['conjoined', 'meme', 'ci'])
+
+NON_DEMDIS_TAGS = NOT_CLLD_TAGS.copy()
+NON_DEMDIS_TAGS.discard('dem')
+
+EMPTY_DICT = {'clld': 0, 'prep': 0, 'canonical': 0}
 
 
 @register.filter
@@ -263,18 +270,18 @@ def get_position(tags):
     return position
 
 
-def is_clld(tags):
+def set_intersects(target, tags):
     """
-    Given a list of tags, determine if this is an example of clitic left
-    dislocation
+    Given a list of target tags and another list of tags for a specific
+    annotation, determine if this fits the target
     """
-    anno_is_clld = True
+    anno_set_intersects = True
     anno_tags = set(tags)
-    intersection = NOT_CLLD_TAGS & anno_tags
+    intersection = target & anno_tags
     if len(intersection):
-        anno_is_clld = False
+        anno_set_intersects = False
 
-    return anno_is_clld
+    return anno_set_intersects
 
 
 def dislocation_data(uri):
@@ -288,8 +295,8 @@ def dislocation_data(uri):
     totalsent = 0
     totalq = 0
     position_count = {
-        'ld': {'clld': 0, 'prep': 0},
-        'rd': {'clld': 0, 'prep': 0}
+        'ld': deepcopy(EMPTY_DICT),
+        'rd': deepcopy(EMPTY_DICT)
         }
 
     paras = soup.select(cclass)[0].find_all('p')
@@ -308,7 +315,7 @@ def dislocation_data(uri):
             cid,
             {
                 'name': None,
-                'tcount': {'clld': 0, 'prep': 0},
+                'tcount': deepcopy(EMPTY_DICT),
                 'tlcount': {},
                 'paras': 0,
                 'sents': 0,
@@ -359,7 +366,7 @@ def dislocation_data(uri):
             pcount += 1
 
     annod = {}
-    tcount = {'clld': 0, 'prep': 0}
+    tcount = deepcopy(EMPTY_DICT)
     tlcount = {}
     for anno in annos:
         startd = 0
@@ -413,12 +420,30 @@ def dislocation_data(uri):
             char[cid]['tcount'].setdefault(tag.name, 0)
             char[cid]['tcount'][tag.name] += 1
 
-        if is_clld(tags):
+        if set_intersects(NOT_CLLD_TAGS, tags):
             tags.append('clld')
             tcount['clld'] += 1
             char[cid]['tcount']['clld'] += 1
             position_count[position]['clld'] += 1
             char[cid]['position_count'][position]['clld'] += 1
+
+        if set_intersects(NON_CANONICAL_TAGS, tags):
+            tags.append('canonical')
+            tcount['canonical'] += 1
+            char[cid]['tcount']['canonical'] += 1
+            position_count[position]['canonical'] += 1
+            char[cid]['position_count'][position]['canonical'] += 1
+
+        if tags.count('dem') and set_intersects(NON_DEMDIS_TAGS, tags):
+            tags.append('demdis')
+            tcount.setdefault('demdis', 0)
+            tcount['demdis'] += 1
+            char[cid]['tcount'].setdefault('demdis', 0)
+            char[cid]['tcount']['demdis'] += 1
+            position_count[position].setdefault('demdis', 0)
+            position_count[position]['demdis'] += 1
+            char[cid]['position_count'][position].setdefault('demdis', 0)
+            char[cid]['position_count'][position]['demdis'] += 1
 
         tlist = ' '.join(sorted(tags))
         tlcount.setdefault(tlist, 0)

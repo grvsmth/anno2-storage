@@ -16,16 +16,17 @@
                         <th>Sentences</th>
                         <th>Questions</th>
                         <th>ld</th>
-                        <th>CLLD</th>
-                        <th>Complex inversion</th>
-                        <th>Contrastive topics</th>
-                        <th>With <i>pour</i></th>
-                        <th>With <i>quant</i></th>
-                        <th>With prep</th>
-                        <th>Conjoined NPs</th>
-                        <th>With <i>même</i></th>
+                        <th>clld</th>
+                        <th>ld ci</th>
+                        <th>ld ct</th>
+                        <th>ld dem</th>
+                        <th>ld pour</th>
+                        <th>ld quant</th>
+                        <th>ld prep</th>
+                        <th>ld conjoined</th>
+                        <th>ld même</th>
                         <th>rd</th>
-                        <th>rd CLLD</th>
+                        <th>clrd</th>
                         <th>rd ci</th>
                         <th>rd ct</th>
                         <th>rd dem</th>
@@ -50,6 +51,7 @@
                     <td>{{ tdata.char_data.position_count.ld.clld|default_if_none:0 }}</td>
                     <td>{{ tdata.char_data.position_count.ld.ci|default_if_none:0 }}</td>
                     <td>{{ tdata.char_data.position_count.ld.ct|default_if_none:0 }}</td>
+                    <td>{{ tdata.char_data.position_count.ld.dem|default_if_none:0 }}</td>
                     <td>{{ tdata.char_data.position_count.ld.pour|default_if_none:0 }}</td>
                     <td>{{ tdata.char_data.position_count.ld.quant|default_if_none:0 }}</td>
                     <td>{{ tdata.char_data.position_count.ld.prep|default_if_none:0 }}</td>
