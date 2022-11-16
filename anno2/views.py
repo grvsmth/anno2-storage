@@ -71,6 +71,7 @@ NON_CANONICAL_TAGS = set(['conjoined', 'meme', 'ci'])
 
 NON_DEMDIS_TAGS = NOT_CLLD_TAGS.copy()
 NON_DEMDIS_TAGS.discard('dem')
+NON_DEMDIS_TAGS.add('inver')
 
 EMPTY_DICT = {'clld': 0, 'prep': 0, 'canonical': 0}
 
