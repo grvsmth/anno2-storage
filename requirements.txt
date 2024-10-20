@@ -23,4 +23,4 @@ regex==2016.12.27
 requests==2.11.1
 six==1.10.0
 urllib3==1.19.1
-Werkzeug==0.15.3
+Werkzeug==3.0.3
