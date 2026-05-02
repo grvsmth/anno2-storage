@@ -7,14 +7,17 @@
 <h2>My annotations</h2>
 <div style="color: green;" id="saved">Saved!</div>
 <p>By URL:</p>
-<ul>
+<table border="1">
 {% for uri in uris %}
-<li>
-    <button type="button" onClick="saveUri('{{ uri.uri }}')">Save</button>
-    <a href="/store/search?uri={{ uri.uri }}" target="_blank">{{ uri.uri }}</a>
-</li>
+<tr>
+    <th>{{ uri.uri }}</th>
+    <td><button type="button" onClick="saveUri('{{ uri.uri }}')">Save</button></td>
+    <td><a href="/store/search?uri={{ uri.uri }}" target="_blank">View JSON</a></td>
+    <td><a href="/stage?uri={{ uri.uri }}" target="_blank">
+        View annotated document
+    </a></td>
 {% endfor %}
-</ul>
+</table>
 <script src="/static/js/jquery.min.js"></script>
 <script>
 function getCookie(name) {
