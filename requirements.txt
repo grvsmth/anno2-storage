@@ -10,17 +10,13 @@ django-taggit==4.0.0
 django-taggit-serializer==0.1.7
 djangorestframework==3.15.1
 djangorestframework-jwt==1.11.0
-elasticsearch==1.9.0
 iso8601==0.1.11
-# itsdangerous==0.24
-# Jinja2==2.8
 MarkupSafe==0.23
 mysqlclient==2.1.1
 PyJWT==1.7.1
 python-dateutil==2.6.0
-pytz==2016.10
+pytz==2026.1.post1
 regex==2016.12.27
-requests==2.20.0
-scipy==1.5.4
+requests==2.33.1
+scipy==1.15.3
 six==1.10.0
-urllib3==1.19.1
