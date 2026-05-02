@@ -14,7 +14,10 @@ class Permission(models.Model):
         (DELETE, DELETE),
         (ADMIN, ADMIN)
         }
-    django_user = models.ForeignKey(User)
+    django_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+        )
     action = models.CharField(
         max_length=6,
         choices=ACTION_CHOICES,
@@ -29,7 +32,11 @@ class Annotation (models.Model):
     quote = models.TextField(blank=True, null=True)
     uri = models.CharField(max_length=3000, null=True)
     tags = TaggableManager()
-    django_user = models.ForeignKey(User, db_index=True)
+    django_user = models.ForeignKey(
+        User,
+        db_index=True,
+        on_delete=models.CASCADE
+        )
     consumer = models.CharField(max_length=100, default='Annotator')
     permissions = models.ManyToManyField(Permission)
 
