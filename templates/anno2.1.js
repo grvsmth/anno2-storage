@@ -29,6 +29,7 @@ launch = function (inDiv, origUrl) {
             }
         }
     });
+
     var content = $(inDiv).annotator();
     console.log("Welcome, " + window.location.href);
     content.annotator('addPlugin', 'Tags').annotator('addPlugin', 'Store', {
