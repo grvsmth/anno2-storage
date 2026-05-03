@@ -1,5 +1,6 @@
 -f /usr/share/pip-wheels
 annotator==0.14.2
+beautifulsoup4==4.11.1
 click==6.6
 Django==3.2.25
 django-cors-headers==3.10.1
@@ -17,6 +18,7 @@ python-dateutil==2.6.0
 pytz==2026.1.post1
 regex==2016.12.27
 requests==2.33.1
+scipy==1.15.3
 six==1.10.0
 urllib3==1.26.19
 Werkzeug==0.15.3

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dislocation report</title>
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Dislocation report</h1>
+            <h2>{{ text_name }}</h2>
+            In the <b>{{ cclass }} div there are:</b>
+            <table class="table">
+                <tbody>
+                    <tr><td>Annotations</td><td>{{ annos|length }}</td></tr>
+                    <tr><td>Paragraphs</td><td>{{ numpara }}</td></tr>
+                    <tr><td>Sentences</td><td>{{ sentences }}</td></tr>
+                    <tr><td>Questions</td><td>{{ questions }}</td></tr>
+                </tbody>
+            </table>
+
+            <p>Totals by character:</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Paragraphs</th>
+                        <th>Sentences</th>
+                        <th>Questions</th>
+                        <th>ld</th>
+                        <th>Canonical</th>
+                        <th>Complex inversion</th>
+                        <th>Contrastive topics</th>
+                        <th>With <i>pour</i></th>
+                        <th>With <i>quant</i></th>
+                        <th>Conjoined NPs</th>
+                        <th>With <i>même</i></th>
+                        <th>rd</th>
+                        <th>rd interr</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for cid, cdata in char %}
+                <tr>
+                    <td>{{ cid }}</td>
+                    <td>{{ cdata.name }}</td>
+                    <td>{{ cdata.paras }}</td>
+                    <td>{{ cdata.sents }}</td>
+                    <td>{{ cdata.questions }}</td>
+                    <td>{{ cdata.tcount.ld|default_if_none:0 }}</td>
+                    <td>{{ cdata.position_count.ld.canonical|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.ci|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.ct|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.pour|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.quant|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.conjoined|default_if_none:0 }}</td>
+                    <td>{{ cdata.tlcount|get_item:'ld meme'|default_if_none:0 }}</td>
+                    <td>{{ cdata.tcount.rd|default_if_none:0 }}</td>
+                    <td>{{ cdata.position_count.rd.canonical|default_if_none:0 }}</td>
+                    <td>{{ cdata.tlcount|get_item:'interr rd'|default_if_none:0 }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p>Totals by tag:</p>
+            <ul>
+                {% for tlist, tco in tcount %}
+                <li>{{ tlist }}. {{ tco }}</li>
+                {% endfor %}
+            </ul>
+            <p>Totals by tag list:</p>
+            <ul>
+                {% for tlist, tco in tlcount %}
+                <li>{{ tlist }}. {{ tco }}</li>
+                {% endfor %}
+            </ul>
+            <p>Annotations:</p>
+            <ul>
+                {% for aid, anno in annod %}
+                <li>{{ aid }}. {{ anno }}</li>
+                {% endfor %}
+            </ul>
+            <p>Debugging:</p>
+            <p>{{ debug }}</p>
+           <script src="/static/js/bootstrap.min.js" />
+x        </div>
+    </body>
+</html>

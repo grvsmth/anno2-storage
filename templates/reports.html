@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Reports</title>
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Reports</h1>
+            {% for name, uri in pages %}
+            <div class="row pb-4">
+                <div class="col-10">{{ name }}</div>
+                <div class="col-2">
+                    <a class="btn btn-sm btn-success" href="dislocations?uri={{ uri }}">
+                        Dislocations
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            <script src="/static/js/bootstrap.min.js" />
+        </div>
+    </body>
+</html>
