@@ -94,6 +94,12 @@ ENV/
 .pyc
 
 # JS and CSS libraries
-annotator-full.min.js
 annotator.min.css
+bootstrap*.css*
+bootstrap*.js
 jquery*.js
+*.min.js
+
+output/
+theatredeparis/
+annotator2.min.js

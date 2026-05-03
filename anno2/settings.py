@@ -143,6 +143,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
+SAVE_DIR = os.path.join(BASE_DIR, 'output')
+
 SECURE_SSL_REDIRECT = True
 
 # Django REST Framework
